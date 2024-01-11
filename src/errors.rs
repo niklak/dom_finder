@@ -30,5 +30,3 @@ pub enum ParseError {
     #[error(transparent)]
     Pipeline(#[from] PipelineError),
 }
-
-

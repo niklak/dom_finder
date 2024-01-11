@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use std::hash::BuildHasherDefault;
 
 ///Value is a enum that can be used to store any basic type of data
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 #[serde(untagged)]
 pub enum Value {
     Int(i64),
@@ -93,6 +93,80 @@ impl<'a> FromIterator<&'a str> for Value {
     }
 }
 
+impl From<Value> for Option<String> {
+    fn from(value: Value) -> Self {
+        match value {
+            Value::String(val) => Some(val),
+            _ => None,
+        }
+    }
+}
+
+impl From<Value> for Option<i64> {
+    fn from(value: Value) -> Self {
+        match value {
+            Value::Int(val) => Some(val),
+            _ => None,
+        }
+    }
+}
+
+impl From<Value> for Option<f64> {
+    fn from(value: Value) -> Self {
+        match value {
+            Value::Float(val) => Some(val),
+            _ => None,
+        }
+    }
+}
+
+impl From<Value> for Option<bool> {
+    fn from(value: Value) -> Self {
+        match value {
+            Value::Bool(val) => Some(val),
+            _ => None,
+        }
+    }
+}
+
+impl From<Value> for Option<Vec<String>> {
+    fn from(value: Value) -> Self {
+        match value {
+            Value::Array(val) => val.into_iter().map(|v| v.into()).collect(),
+            _ => None,
+        }
+    }
+}
+
+impl From<Value> for Option<Vec<i64>> {
+    fn from(value: Value) -> Self {
+        match value {
+            Value::Array(val) => val.into_iter().map(|v| v.into()).collect(),
+            _ => None,
+        }
+    }
+}
+
+impl From<Value> for Option<Vec<f64>> {
+    fn from(value: Value) -> Self {
+        match value {
+            Value::Array(val) => val.into_iter().map(|v| v.into()).collect(),
+            _ => None,
+        }
+    }
+}
+
+impl From<Value> for Option<Vec<bool>> {
+    fn from(value: Value) -> Self {
+        match value {
+            Value::Array(val) => val.into_iter().map(|v| v.into()).collect(),
+            _ => None,
+        }
+    }
+}
+
+// TODO: add From<Value> for Option<HashMap<String, String>> and so on.
+
 impl Value {
     ///Returns true if the value inner representation is empty
     pub fn is_empty(&self) -> bool {
@@ -107,21 +181,38 @@ impl Value {
         }
     }
 
-    pub fn get(&self, path: &str) -> Option<&Value> {
+    pub fn from_path(&self, path: &str) -> Option<Value> {
         let paths = path.splitn(2, '.').collect::<Vec<&str>>();
-        let key = paths[0];
 
         match self {
-            Self::Object(val) => val
-                .get(key)
-                .and_then(|v| {
+            Self::Object(obj) => {
+                let key = paths[0];
+                obj.get(key).and_then(|v| {
                     if paths.len() > 1 {
-                        v.get(paths[1])
+                        v.from_path(paths[1])
                     } else {
-                        Some(v)
+                        Some(v.clone())
                     }
                 })
-                .or_else(|| if paths.len() > 1 { None } else { val.get(key) }),
+            }
+            Self::Array(val) => {
+                if paths.len() == 1 && paths[0] == "#" {
+                    return Some(Value::Int(val.len() as i64));
+                } else if paths[0] == "#" {
+                    let values = val.iter().filter_map(|v| v.from_path(paths[1]));
+                    return Some(Self::from_iter(values));
+                }
+
+                let index = paths[0].parse::<usize>().ok()?;
+
+                val.get(index).and_then(|v| {
+                    if paths.len() > 1 {
+                        v.from_path(paths[1])
+                    } else {
+                        Some(v.clone())
+                    }
+                })
+            }
             _ => None,
         }
     }
