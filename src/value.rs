@@ -6,7 +6,7 @@ use rustc_hash::FxHasher;
 use serde::{Deserialize, Serialize};
 use std::hash::BuildHasherDefault;
 
-///Value is a enum that can be used to store any type of data
+///Value is a enum that can be used to store any basic type of data
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(untagged)]
 pub enum Value {
