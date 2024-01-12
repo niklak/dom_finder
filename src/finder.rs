@@ -35,6 +35,23 @@ pub struct Finder<'a> {
 
 impl<'a> Finder<'a> {
     /// Creates a new Finder instance from the given `Config's` instance
+    /// 
+    /// # Arguments
+    /// * `config` - `Config` instance
+    /// 
+    /// # Examples
+    /// ```
+    /// use dom_finder::{Config, Finder};
+    /// let cfg_yml: &str = r"
+    /// name: all_links
+    /// base_path: html body a[href]
+    /// many: true
+    /// extract: href
+    /// ";
+    /// let cfg = Config::from_yaml(cfg_yml).unwrap();
+    /// let finder = Finder::new(&cfg);
+    /// assert!(finder.is_ok());
+    /// ```
     pub fn new(config: &'a Config) -> Result<Finder<'a>, ParseError> {
         Self::from_config(config, true)
     }
@@ -89,6 +106,25 @@ impl<'a> Finder<'a> {
         }
     }
     /// Parses the given html and returns the result as a `Value`
+    /// # Arguments
+    /// * `html` - the html to parse
+    /// 
+    /// # Examples
+    /// ```
+    /// use dom_finder::{Config, Finder};
+    /// let cfg_yml: &str = r"
+    /// name: all_links
+    /// base_path: html body a[href]
+    /// many: true
+    /// extract: href
+    /// ";
+    /// let cfg = Config::from_yaml(cfg_yml).unwrap();
+    /// let finder = Finder::new(&cfg).unwrap();
+    /// let html = r#"<html><body><a href="https://example.com">example</a></body></html>"#;
+    /// let res = finder.parse(html);
+    /// let link: Option<String> = res.from_path("all_links.0").and_then(|v| v.into());
+    /// assert_eq!(link.unwrap(), "https://example.com");
+    /// ```
     pub fn parse(&self, html: &str) -> Value {
         let doc = Document::from(html);
         let sel = Selection::from(doc.root());

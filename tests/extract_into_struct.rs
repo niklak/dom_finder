@@ -99,7 +99,7 @@ children:
         pipeline: [ [ policy_highlight ] ]
 ";
 
-const HTML_DOC: &str = include_str!("../test_data/ethereum.html");
+const HTML_DOC: &str = include_str!("../test_data/page_0.html");
 
 #[test]
 fn get_last_url() {

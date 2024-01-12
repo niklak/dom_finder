@@ -20,7 +20,7 @@ children:
         pipeline: [ [ policy_highlight ] ]
 ";
 
-const HTML_DOC: &str = include_str!("../test_data/ethereum.html");
+const HTML_DOC: &str = include_str!("../test_data/page_0.html");
 
 #[test]
 fn get_first_string_value() {
@@ -40,9 +40,9 @@ fn get_count_results() {
 
     let results = finder.parse(HTML_DOC);
 
-    let raw_url = results.from_path("root.results.#").unwrap();
-    let url_opt: Option<i64> = raw_url.into();
-    assert_eq!(url_opt.unwrap(), 21);
+    let raw_count = results.from_path("root.results.#").unwrap();
+    let count_opt: Option<i64> = raw_count.into();
+    assert_eq!(count_opt.unwrap(), 21);
 }
 
 #[test]
@@ -52,8 +52,8 @@ fn get_flat_array_from_array_objects() {
 
     let results = finder.parse(HTML_DOC);
 
-    let raw_url = results.from_path("root.results.#.url").unwrap();
-    let urls_opt: Option<Vec<String>> = raw_url.into();
+    let raw_urls = results.from_path("root.results.#.url").unwrap();
+    let urls_opt: Option<Vec<String>> = raw_urls.into();
     let urls = urls_opt.unwrap();
 
     let expected_urls = vec![
