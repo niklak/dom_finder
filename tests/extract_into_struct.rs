@@ -1,11 +1,10 @@
-use std::option::Option;
 use dom_finder::{Config, Finder, Value};
+use std::option::Option;
 
 ///A test example of how to extract a struct from a Value
 
 trait FromValue: Sized {
     fn from_value(value: Value) -> Option<Self>;
-    
 }
 
 #[derive(Debug, Default)]
@@ -14,16 +13,18 @@ struct SerpLink {
     title: String,
 }
 
-impl FromValue for SerpLink{
+impl FromValue for SerpLink {
     fn from_value(value: Value) -> Option<Self> {
         match value {
             Value::Object(o) => {
                 let url: Option<String> = o.get("url").and_then(|v| v.to_owned().into());
                 let title: Option<String> = o.get("title").and_then(|v| v.to_owned().into());
-                Some(Self { url: url.unwrap_or_default(), title: title.unwrap_or_default() })
-            },
+                Some(Self {
+                    url: url.unwrap_or_default(),
+                    title: title.unwrap_or_default(),
+                })
+            }
             _ => None,
-            
         }
     }
 }
@@ -39,11 +40,17 @@ impl FromValue for SerpItem {
     fn from_value(value: Value) -> Option<Self> {
         match value {
             Value::Object(o) => {
-                let link: Option<SerpLink> = o.get("link").and_then(|v| SerpLink::from_value(v.to_owned()));
+                let link: Option<SerpLink> = o
+                    .get("link")
+                    .and_then(|v| SerpLink::from_value(v.to_owned()));
                 let snippet: Option<String> = o.get("snippet").and_then(|v| v.to_owned().into());
                 let index: Option<i64> = o.get("index").and_then(|v| v.to_owned().into());
-                Some(Self { link: link.unwrap_or_default(), snippet: snippet.unwrap_or_default(), index: index.unwrap_or_default() })
-            },
+                Some(Self {
+                    link: link.unwrap_or_default(),
+                    snippet: snippet.unwrap_or_default(),
+                    index: index.unwrap_or_default(),
+                })
+            }
             _ => None,
         }
     }
@@ -59,16 +66,18 @@ impl FromValue for Serp {
         if let Some(val) = value.from_path("root.results") {
             match val {
                 Value::Array(items) => {
-                    let items: Vec<SerpItem> = items.into_iter().filter_map(|v| SerpItem::from_value(v)).collect();
+                    let items: Vec<SerpItem> = items
+                        .into_iter()
+                        .filter_map(|v| SerpItem::from_value(v))
+                        .collect();
                     Some(Self { items })
-                },
+                }
                 _ => None,
             }
-        }else {
+        } else {
             None
         }
     }
-    
 }
 
 const CFG_YAML: &str = r"
@@ -109,9 +118,11 @@ fn get_last_url() {
     let results = finder.parse(HTML_DOC);
 
     let serp = Serp::from_value(results).unwrap();
-    assert_eq!(serp.items[serp.items.len() -1].link.url, "https://www.coingecko.com/en/coins/ethereum");
+    assert_eq!(
+        serp.items[serp.items.len() - 1].link.url,
+        "https://www.coingecko.com/en/coins/ethereum"
+    );
 }
-
 
 #[test]
 fn get_count_results() {
@@ -123,5 +134,3 @@ fn get_count_results() {
     let serp = Serp::from_value(results).unwrap();
     assert_eq!(serp.items.len(), 21);
 }
-
-

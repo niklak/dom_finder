@@ -29,9 +29,9 @@ fn get_first_string_value() {
 
     let results = finder.parse(HTML_DOC);
 
-    let raw_url = results.from_path("root.results.0.url").unwrap();
-    let url_opt: Option<String> = raw_url.into();
-    assert_eq!(url_opt.unwrap().as_str(), "https://ethereum.org/en/");
+    let url: String = results.from_path("root.results.0.url")
+    .and_then(| v| v.into()).unwrap();
+    assert_eq!(url, "https://ethereum.org/en/"); 
 }
 #[test]
 fn get_count_results() {

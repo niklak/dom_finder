@@ -53,12 +53,13 @@ fn main() {
     // Returned `Value` from `parse` method is always `Value::Object` and it has only one key (String).
     let results: Value = finder.parse(HTML_DOC);
 
-    // from the `Value` we can navigate to descendant (inline) value, by path, similar like `gjson` has,
-    // but in `Value` case -- path is primitive.
+    // from the `Value` we can navigate to descendant (inline) value, by path,
+    // similar like `gjson` has, but in `Value` case -- path is primitive.
     // For more examples, please check out the `tests/` folder.
 
     // Getting the count of results by using `from_path` method.
-    // We know that `results` is `Value::Array`, because in the config we set `many: true` for `results`.
+    // We know that `results` is `Value::Array`, 
+    // because in the config we set `many: true` for `results`.
     // if the Value option is Array (actually Vector), we can query it by: # or a (positive) number.
     let raw_count = results.from_path("root.results.#").unwrap();
     let count_opt: Option<i64> = raw_count.into();
@@ -66,11 +67,13 @@ fn main() {
 
 
     // Getting an exact Value, and casting it to a real value
-    // Same way we can retrieve all urls inside `results` array, by specifying path as `root.results.#.url`.
-    // If there will no `url` key, or it will not have a Value::String type, it will return None, otherwise -- Some
-    let raw_url = results.from_path("root.results.0.url").unwrap();
-    let url_opt: Option<String> = raw_url.into();
-    assert_eq!(url_opt.unwrap().as_str(), "https://ethereum.org/en/");
+    // Same way we can retrieve all urls inside `results` array, 
+    // by specifying path as `root.results.#.url`.
+    // If there will no `url` key, or it will not have a Value::String type, 
+    // it will return None, otherwise -- Some
+    let url: String = results.from_path("root.results.0.url")
+    .and_then(| v| v.into()).unwrap();
+    assert_eq!(url, "https://ethereum.org/en/"); 
 }
 ```
 

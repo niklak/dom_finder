@@ -35,10 +35,10 @@ pub struct Finder<'a> {
 
 impl<'a> Finder<'a> {
     /// Creates a new Finder instance from the given `Config's` instance
-    /// 
+    ///
     /// # Arguments
     /// * `config` - `Config` instance
-    /// 
+    ///
     /// # Examples
     /// ```
     /// use dom_finder::{Config, Finder};
@@ -108,7 +108,7 @@ impl<'a> Finder<'a> {
     /// Parses the given html and returns the result as a `Value`
     /// # Arguments
     /// * `html` - the html to parse
-    /// 
+    ///
     /// # Examples
     /// ```
     /// use dom_finder::{Config, Finder};
