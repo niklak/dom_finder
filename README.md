@@ -73,7 +73,11 @@ fn main() {
     // it will return None, otherwise -- Some
     let url: String = results.from_path("root.results.0.url")
     .and_then(| v| v.into()).unwrap();
-    assert_eq!(url, "https://ethereum.org/en/"); 
+    assert_eq!(url, "https://ethereum.org/en/");
+
+    // Also the `Value` instance can be serialized with serde serializer 
+    // (like json or any other available)
+    let serialized = serde_json::to_string(&res).unwrap();
 }
 ```
 
