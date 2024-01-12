@@ -23,7 +23,7 @@ children:
 const HTML_DOC: &str = include_str!("../test_data/ethereum.html");
 
 #[test]
-fn extract_first_string_value() {
+fn get_first_string_value() {
     let cfg = Config::from_yaml(CFG_YAML).unwrap();
     let finder = Finder::new(&cfg).unwrap();
 
@@ -34,7 +34,7 @@ fn extract_first_string_value() {
     assert_eq!(url_opt.unwrap().as_str(), "https://ethereum.org/en/");
 }
 #[test]
-fn count_results() {
+fn get_count_results() {
     let cfg = Config::from_yaml(CFG_YAML).unwrap();
     let finder = Finder::new(&cfg).unwrap();
 
@@ -46,7 +46,7 @@ fn count_results() {
 }
 
 #[test]
-fn extract_array_from_object() {
+fn get_flat_array_from_array_objects() {
     let cfg = Config::from_yaml(CFG_YAML).unwrap();
     let finder = Finder::new(&cfg).unwrap();
 
