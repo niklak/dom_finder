@@ -78,7 +78,7 @@ pub enum Proc<'a> {
     HtmlUnescape,
     /// `PolicyHighlight` removes all html tags from the result except `<b>`, `<em>`, and `<i>`,  requires no arguments.
     PolicyHighlight,
-    /// `PolicyTable` removes all html tags from the result except  tags from  `PolicyHighlight` and 
+    /// `PolicyTable` removes all html tags from the result except  tags from  `PolicyHighlight` and
     /// `<table>`, `<tr>`, `<td>`, `<th>`, `<tbody>`, `<thead>`, `<caption>`, requires no arguments.
     PolicyTable,
     /// `PolicyList` removes all html tags from the result except  tags from  `PolicyHighlight` and  
