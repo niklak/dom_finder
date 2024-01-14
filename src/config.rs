@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::errors::ValidationError;
 
+/// `CastType` is an enum that represents the type of the (final) result value.
 #[derive(Serialize, Deserialize, Default, Debug, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
 pub enum CastType {
@@ -14,52 +15,52 @@ pub enum CastType {
 /// `Config` is a struct that represents the configuration of the `Finder`.
 #[derive(Serialize, Deserialize, Default, Debug)]
 pub struct Config {
-    ///`name` represents a key for result the and every inline element if it is presented.  
+    /// represents a key for result the and every inline element if it is presented.  
     pub name: String,
-    ///`base_path` is a selector's path to the element to handle. May be omitted if the `inherit` option is set to `true`.
+    /// is a selector's path to the element to handle. May be omitted if the `inherit` option is set to `true`.
     #[serde(default)]
     pub base_path: String,
-    ///`extract` is a selector's path to the element to handle. It may be either extract or children.
+    /// represents what finder needs to extract. Accepted values are `text`, `inner_text`, `html` or an html-attribute name.
     #[serde(default)]
     pub extract: String,
-    ///`cast` is a type of the result value. Accepted values are `text`, `inner_text`, `html` or an html-attribute name.
+    /// is a type of the result value. Accepted values are `bool`, `int`, `float` or `string` (default, and should be omitted).
     #[serde(default)]
     pub cast: CastType,
-    ///`join_sep` is a separator for joining the result values. Works only when `many` is set to `true` and there is no descendant config.
+    /// is a separator for joining the result values. Works only when `many` is set to `true` and there is no descendant config.
     #[serde(default)]
     pub join_sep: String,
-    ///`many` is a flag that indicates whether the result is an array or not.
+    /// is a flag that indicates whether the result is an array or not.
     #[serde(default)]
     pub many: bool,
+    ///  adds a index field to the result if it is an array of objects.
     #[serde(default)]
-    ///`enumerate` adds a index field to the result if it is an array of objects.
     pub enumerate: bool,
+    /// parent's `base_path` (and parent's selector) will be used if it is set to `true`.
     #[serde(default)]
-    ///`inherit` will use parent's base_path (and parent's selector) if it is set to `true`.
     pub inherit: bool,
+    /// if it is `true` then `.parent()` method of the matcher will be applied. It means it will use direct parent of the selection. It is distinct from `inherit` option.
     #[serde(default)]
-    ///`parent` will use .parent() method of the matcher if it is set to `true`. It means it will use direct parent of the selection. It is distinct from `inherit` option.
     pub parent: bool,
-    ///`first_occurrence` will stop parsing descendant selections when it will encounter the first non-empty result.
+    ///if it is `true` then finder will stop parsing descendant selections when it will encounter the first non-empty result.
     #[serde(default)]
     pub first_occurrence: bool,
+    /// when it is `true` finder will remove a matching selection from the document (html). Currently this implementation is not finished.
     #[serde(default)]
-    ///`remove_selection` will remove the selection from the document (html) if it is set to `true`. Currently this implementation is not finished.
     pub remove_selection: bool,
+    /// if it is `true` then finder will unpack descendant map into parent map.
     #[serde(default)]
-    ///`flatten` if it is set to `true` then it will unpack descendant map into parent map.
     pub flatten: bool,
-    ///`split_path` if it is set to `true` then it will split base_path by `,` for more flexibility. Not implemented yet
+    /// if it is `true` then finder will split `base_path` by `,` for more flexibility. Not implemented yet.
     #[serde(default)]
     pub split_path: bool,
-    ///`pipeline` is a list of predefined procedures to apply to the result.
-    /// Represented by a list of strings.
+    /// is a list of predefined procedures to apply to the result.
+    /// Each procedure (pipeline element) is represented by a list of strings.
     /// Currently supported procedures are:
     /// `regex`, `replace`, `extract_json`, `trim_space`,
     /// `trim`, `html_unescape`, `policy_highlight`, `policy_table`, `policy_list`.
     #[serde(default)]
     pub pipeline: Vec<Vec<String>>,
-    ///children is a list of descendant `Config`.
+    /// is a list of descendant `Config`.
     #[serde(default)]
     pub children: Vec<Config>,
 }

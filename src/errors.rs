@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-/// Errors that can occur on validating `Config` instance.
+/// Errors that can occur on validating the `Config` instance.
 #[derive(Error, Debug)]
 pub enum ValidationError {
     #[error("the required `{0}` field is missing")]
@@ -9,7 +9,7 @@ pub enum ValidationError {
     ExtractOrDive,
 }
 
-/// Errors that can occur during pipeline initialization
+/// Errors that can occur during the pipeline initialization.
 #[derive(Error, Debug)]
 pub enum PipelineError {
     #[error(transparent)]
@@ -20,7 +20,7 @@ pub enum PipelineError {
     ProcNotEnoughArguments(String, usize, usize),
 }
 
-/// Errors that can met encountered only during creation of `Finder` instance.
+/// Errors that can be encountered only during creation of the `Finder` instance.
 #[derive(Error, Debug)]
 pub enum ParseError {
     #[error("matcher can be empty only if `inherit` option is set to true")]

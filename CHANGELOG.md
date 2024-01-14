@@ -2,6 +2,11 @@
 
 All notable changes to the `dom_finder` crate will be documented in this file.
 
+## [0.2.1] - 2024-01-14
+
+### Changed
+- Fix and extend the documentation.
+
 ## [0.2.0] - 2024-01-14
 
 ### Added
