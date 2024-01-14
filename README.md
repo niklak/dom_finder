@@ -77,6 +77,8 @@ fn main() {
 
     // Also the `Value` instance can be serialized with serde serializer 
     // (like json or any other available)
+    // Useful if you just need to send parsed data with http response, 
+    // or put parsed data into the database
     let serialized = serde_json::to_string(&res).unwrap();
 }
 ```

@@ -270,8 +270,8 @@ impl<'a> Finder<'a> {
 /// - float - casts the value to float
 /// - string - casts the value to string
 /// # Arguments
-/// * `s` - the value to cast
-/// * `cast` - the type to cast to
+/// * `s` - `String`, the value to cast
+/// * `cast` - `CastType`, the type to cast to
 fn cast_value(s: String, cast: CastType) -> Value {
     match cast {
         CastType::Bool => {

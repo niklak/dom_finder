@@ -14,7 +14,7 @@ pub enum CastType {
 /// `Config` is a struct that represents the configuration of the `Finder`.
 #[derive(Serialize, Deserialize, Default, Debug)]
 pub struct Config {
-    ///`Name` represents a key for result and every inline element if it is presented.  
+    ///`Name` represents a key for result the and every inline element if it is presented.  
     pub name: String,
     ///`BasePath` is a selector's path to the element to handle. May be omitted if the `inherit` option is set to `true`.
     #[serde(default)]
@@ -22,7 +22,7 @@ pub struct Config {
     ///`Extract` is a selector's path to the element to handle. It may be either extract or children.
     #[serde(default)]
     pub extract: String,
-    ///`Cast` is a type of the result value.
+    ///`Cast` is a type of the result value. Accepted values are `text`, `inner_text`, `html` or an html-attribute name.
     #[serde(default)]
     pub cast: CastType,
     ///`JoinSep` is a separator for joining the result values. Works only when `many` is set to `true` and there is no descendant config.
