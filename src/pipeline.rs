@@ -64,14 +64,25 @@ impl<'a> Pipeline<'a> {
 /// Represents a processing procedure in the pipeline.
 #[derive(Debug)]
 pub enum Proc<'a> {
+    /// `Regex`  requires one argument - the regex pattern. Currently it captures only a value from the first matching group.
     Regex(Regex),
+    /// `Replace`  requires two arguments - the old and the new string.
     Replace(&'a str, &'a str),
+    /// `ExtractJson`  requires one argument - the path to the json value, if the string represents a json.
     ExtractJson(&'a str),
+    /// `TrimSpace` requires no arguments. It trims spaces at the start and the end of the string.
     TrimSpace,
+    /// `Trim` requires one argument - it trims characters from the (start and end of) string with the cut set.
     Trim(Vec<char>),
+    /// `HtmlUnescape` unescape html entities, requires no arguments.
     HtmlUnescape,
+    /// `PolicyHighlight` removes all html tags from the result except `<b>`, `<em>`, and `<i>`,  requires no arguments.
     PolicyHighlight,
+    /// `PolicyTable` removes all html tags from the result except  tags from  `PolicyHighlight` and 
+    /// `<table>`, `<tr>`, `<td>`, `<th>`, `<tbody>`, `<thead>`, `<caption>`, requires no arguments.
     PolicyTable,
+    /// `PolicyList` removes all html tags from the result except  tags from  `PolicyHighlight` and  
+    /// `<ul>`, `<ol>`, `<li>`, `<dl>`, `<dt>`, `<dd>`, requires no arguments.
     PolicyList,
 }
 
