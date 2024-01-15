@@ -7,7 +7,7 @@ trait FromValue: Sized {
     fn from_value(value: Value) -> Option<Self>;
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq)]
 struct SerpLink {
     url: String,
     title: String,
@@ -33,7 +33,14 @@ impl FromValue for SerpLink {
 struct SerpItem {
     link: SerpLink,
     snippet: String,
+    #[allow(dead_code)]
     index: i64,
+}
+
+impl SerpItem {
+    fn is_full(&self) -> bool {
+        !self.link.url.is_empty() && !self.link.title.is_empty() && !self.snippet.is_empty()
+    }
 }
 
 impl FromValue for SerpItem {
@@ -68,7 +75,7 @@ impl FromValue for Serp {
                 Value::Array(items) => {
                     let items: Vec<SerpItem> = items
                         .into_iter()
-                        .filter_map(|v| SerpItem::from_value(v))
+                        .filter_map(SerpItem::from_value)
                         .collect();
                     Some(Self { items })
                 }
@@ -96,11 +103,10 @@ children:
           - name: url
             inherit: true
             extract: href
-            pipeline: [ [ policy_highlight ] ]
           - name: title
             inherit: true
             extract: text
-            pipeline: [ [ policy_highlight ] ]
+            pipeline: [ [ trim_space ] ]
 
       - name: snippet
         base_path: a.result__snippet
@@ -111,7 +117,7 @@ children:
 const HTML_DOC: &str = include_str!("../test_data/page_0.html");
 
 #[test]
-fn get_last_url() {
+fn get_last_link() {
     let cfg = Config::from_yaml(CFG_YAML).unwrap();
     let finder = Finder::new(&cfg).unwrap();
 
@@ -119,8 +125,24 @@ fn get_last_url() {
 
     let serp = Serp::from_value(results).unwrap();
     assert_eq!(
-        serp.items[serp.items.len() - 1].link.url,
-        "https://www.coingecko.com/en/coins/ethereum"
+        serp.items[serp.items.len() - 1].link,
+        SerpLink {
+            url: "https://www.coingecko.com/en/coins/ethereum".to_string(),
+            title: "Ethereum Price: ETH Live Price Chart & News | CoinGecko".to_string(),
+        }
+    );
+}
+
+#[test]
+fn get_every_item_is_full() {
+    let cfg = Config::from_yaml(CFG_YAML).unwrap();
+    let finder = Finder::new(&cfg).unwrap();
+
+    let results = finder.parse(HTML_DOC);
+
+    let serp = Serp::from_value(results).unwrap();
+    assert!(
+        serp.items.iter().all(|item| item.is_full()),
     );
 }
 
