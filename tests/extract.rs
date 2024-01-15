@@ -1,4 +1,5 @@
 use dom_finder::{Config, Finder};
+use dom_query::Document;
 
 const CFG_YAML: &str = r"
 name: root
@@ -82,4 +83,27 @@ fn get_flat_array_from_array_objects() {
         "https://www.coingecko.com/en/coins/ethereum",
     ];
     assert_eq!(urls, expected_urls);
+}
+
+#[test]
+fn remove_selection() {
+  let cfg_yaml = r"
+  name: root
+  base_path: html
+  children:
+    - name: feedback
+      base_path: div#links.results div.feedback-btn
+      extract: text
+      remove_selection: true
+      pipeline: [ [ trim_space ] ]
+  ";
+  let cfg = Config::from_yaml(cfg_yaml).unwrap();
+  let finder = Finder::new(&cfg).unwrap();
+  let doc = Document::from(HTML_DOC);
+
+  let res = finder.parse_document(&doc);
+  let feedback_caption: Option<String> = res.from_path("root.feedback").unwrap().into();
+  assert_eq!(feedback_caption.unwrap(), "Feedback");
+  let html = doc.html();
+  assert!(!html.contains("feedback-btn"));
 }

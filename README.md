@@ -15,6 +15,7 @@ Currently, the functionality relies on YAML configuration.
 
 ## Examples
 
+#### General
 
 ```rust
 
@@ -81,6 +82,49 @@ fn main() {
     // or put parsed data into the database
     let serialized = serde_json::to_string(&res).unwrap();
 }
+```
+
+#### Remove selection
+
+```rust
+use dom_finder::{Config, Finder};
+use dom_query::Document;
+
+
+const HTML_DOC: &str = include_str!("../test_data/page_0.html");
+
+
+fn main() {
+
+  // Create finder, like in previous example
+  let cfg_yaml = r"
+  name: root
+  base_path: html
+  children:
+  - name: feedback
+    base_path: div#links.results div.feedback-btn
+    extract: html
+    remove_selection: true
+    pipeline: [ [ trim_space ] ]
+  ";
+  let cfg = Config::from_yaml(cfg_yaml).unwrap();
+  let finder = Finder::new(&cfg).unwrap();
+
+  // Create dom_query::Document
+  let doc = Document::from(HTML_DOC);
+
+  // Parse the document
+  // As we set remove_selection it matched selection will be removed from the document.
+  // But the value of matched selection will be available in the result
+  let res = finder.parse_document(&doc);
+  let feedback_caption: Option<String> = res.from_path("root.feedback").unwrap().into();
+  assert_eq!(feedback_caption.unwrap(), "Feedback");
+
+  let html = doc.html();
+  // html document doesn't contain feedback button anymore. 
+  assert!(!html.contains("feedback-btn"));
+}
+
 ```
 
 ## Features

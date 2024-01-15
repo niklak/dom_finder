@@ -44,7 +44,7 @@ pub struct Config {
     ///if it is `true` then finder will stop parsing descendant selections when it will encounter the first non-empty result.
     #[serde(default)]
     pub first_occurrence: bool,
-    /// when it is `true` finder will remove a matching selection from the document (html). Currently this implementation is not finished.
+    /// when it is `true` finder will remove a matching selection from the document (html).
     #[serde(default)]
     pub remove_selection: bool,
     /// if it is `true` then finder will unpack descendant map into parent map.

@@ -127,6 +127,14 @@ impl<'a> Finder<'a> {
     /// ```
     pub fn parse(&self, html: &str) -> Value {
         let doc = Document::from(html);
+        self.parse_document(&doc)
+    }
+
+    /// Parses the given `Document` and returns the result as a `Value`.
+    /// Useful when you need access to the `Document` outside of the `Finder`.
+    /// # Arguments
+    /// * `doc` - the `Document` to parse
+    pub fn parse_document(&self, doc: &Document) -> Value {
         let sel = Selection::from(doc.root());
         let val = self.parse_value(&sel);
         let mut m: InnerMap = InnerMap::default();
