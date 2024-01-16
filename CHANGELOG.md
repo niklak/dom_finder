@@ -2,6 +2,12 @@
 
 All notable changes to the `dom_finder` crate will be documented in this file.
 
+## [0.2.2] - 2024-01-16
+
+### Added
+- Add a new sanitization policy for the `pipeline` -- `policy_common`. It is a combination of all previous policies.
+- Add `dom_finder::Finder::parse_document`.
+
 ## [0.2.1] - 2024-01-14
 
 ### Changed

@@ -57,7 +57,7 @@ pub struct Config {
     /// Each procedure (pipeline element) is represented by a list of strings.
     /// Currently supported procedures are:
     /// `regex`, `replace`, `extract_json`, `trim_space`,
-    /// `trim`, `html_unescape`, `policy_highlight`, `policy_table`, `policy_list`.
+    /// `trim`, `html_unescape`, `policy_highlight`, `policy_table`, `policy_list`, `policy_common`.
     #[serde(default)]
     pub pipeline: Vec<Vec<String>>,
     /// is a list of descendant `Config`.
