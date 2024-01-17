@@ -2,6 +2,15 @@
 
 All notable changes to the `dom_finder` crate will be documented in this file.
 
+
+## [0.2.3] - 2024-01-17
+
+### Changed
+- Change behavior of the `regex` procedure for `pipeline`. Now it captures all groups (excluding matching groups) from the first match.
+
+### Added
+- Add a new procedure for the `pipeline` -- `regex_find`. It returns the first entire match in the given string (result value).
+
 ## [0.2.2] - 2024-01-16
 
 ### Added

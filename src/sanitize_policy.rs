@@ -9,8 +9,8 @@ const ALLOWED_TABLE_TAGS: [&str; 10] = [
 const ALLOWED_LIST_TAGS: [&str; 9] = ["b", "i", "em", "ol", "ul", "li", "dl", "dt", "dd"];
 
 const ALLOWED_COMMON_TAGS: [&str; 16] = [
-    "b", "i", "em", "table", "tbody", "td", "th", "tr", "thead", "caption", 
-    "ol", "ul", "li", "dl", "dt", "dd"
+    "b", "i", "em", "table", "tbody", "td", "th", "tr", "thead", "caption", "ol", "ul", "li", "dl",
+    "dt", "dd",
 ];
 
 //One policy can be used many times across many documents during runtime, so we use static lazy initialization to avoid same policy being initialized multiple times.
@@ -21,7 +21,7 @@ pub(crate) static TABLE_POLICY: Lazy<Sanitization<'static>> =
     Lazy::new(|| Sanitization::new(SANITIZE_PATTERN, &ALLOWED_TABLE_TAGS));
 pub(crate) static LIST_POLICY: Lazy<Sanitization<'static>> =
     Lazy::new(|| Sanitization::new(SANITIZE_PATTERN, &ALLOWED_LIST_TAGS));
-pub (crate) static COMMON_POLICY: Lazy<Sanitization<'static>> =
+pub(crate) static COMMON_POLICY: Lazy<Sanitization<'static>> =
     Lazy::new(|| Sanitization::new(SANITIZE_PATTERN, &ALLOWED_COMMON_TAGS));
 
 ///`Sanitization` represents a lightweight sanitization policy based on regex.

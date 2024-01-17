@@ -87,7 +87,7 @@ fn get_flat_array_from_array_objects() {
 
 #[test]
 fn remove_selection() {
-  let cfg_yaml = r"
+    let cfg_yaml = r"
   name: root
   base_path: html
   children:
@@ -97,13 +97,13 @@ fn remove_selection() {
       remove_selection: true
       pipeline: [ [ trim_space ] ]
   ";
-  let cfg = Config::from_yaml(cfg_yaml).unwrap();
-  let finder = Finder::new(&cfg).unwrap();
-  let doc = Document::from(HTML_DOC);
+    let cfg = Config::from_yaml(cfg_yaml).unwrap();
+    let finder = Finder::new(&cfg).unwrap();
+    let doc = Document::from(HTML_DOC);
 
-  let res = finder.parse_document(&doc);
-  let feedback_caption: Option<String> = res.from_path("root.feedback").unwrap().into();
-  assert_eq!(feedback_caption.unwrap(), "Feedback");
-  let html = doc.html();
-  assert!(!html.contains("feedback-btn"));
+    let res = finder.parse_document(&doc);
+    let feedback_caption: Option<String> = res.from_path("root.feedback").unwrap().into();
+    assert_eq!(feedback_caption.unwrap(), "Feedback");
+    let html = doc.html();
+    assert!(!html.contains("feedback-btn"));
 }

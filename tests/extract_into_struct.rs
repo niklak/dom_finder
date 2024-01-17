@@ -73,10 +73,8 @@ impl FromValue for Serp {
         if let Some(val) = value.from_path("root.results") {
             match val {
                 Value::Array(items) => {
-                    let items: Vec<SerpItem> = items
-                        .into_iter()
-                        .filter_map(SerpItem::from_value)
-                        .collect();
+                    let items: Vec<SerpItem> =
+                        items.into_iter().filter_map(SerpItem::from_value).collect();
                     Some(Self { items })
                 }
                 _ => None,
@@ -141,9 +139,7 @@ fn get_every_item_is_full() {
     let results = finder.parse(HTML_DOC);
 
     let serp = Serp::from_value(results).unwrap();
-    assert!(
-        serp.items.iter().all(|item| item.is_full()),
-    );
+    assert!(serp.items.iter().all(|item| item.is_full()),);
 }
 
 #[test]

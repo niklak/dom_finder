@@ -7,6 +7,7 @@ use super::sanitize_policy;
 
 // Constants representing the names of different pipeline processing procedures
 const REGEX_PROC: &str = "regex";
+const REGEX_FIND_PROC: &str = "regex_find";
 const REPLACE_PROC: &str = "replace";
 const EXTRACT_JSON: &str = "extract_json";
 const TRIM_SPACE: &str = "trim_space";
@@ -62,11 +63,17 @@ impl<'a> Pipeline<'a> {
     }
 }
 
-/// Represents a processing procedure in the pipeline.
+/// Represents a procedure in the pipeline.
 #[derive(Debug)]
 pub enum Proc<'a> {
-    /// requires one argument - the regex pattern. Currently it captures only a value from the first matching group.
+    /// finds all captured groups from the first matching.
+    /// It returns concatenated string from all captured groups.
+    /// If you need a full match, please use `RegexFind` instead.
+    /// `Regex.captures` is applied under the hood.  It requires one argument - the `Regex`.
     Regex(Regex),
+    /// it returns the first entire match of the regex in the given value (haystack).
+    /// `Regex.find` is applied It requires one argument - the `Regex`.
+    RegexFind(Regex),
     /// requires two arguments - the old and the new string.
     Replace(&'a str, &'a str),
     /// requires one argument - the path to the json value, if the string represents a json.
@@ -87,7 +94,7 @@ pub enum Proc<'a> {
     PolicyList,
     /// removes all html tags from the result except  tags from  `PolicyHighlight`,
     /// `PolicyTable` and `PolicyList`, requires no arguments.
-    PolicyCommon
+    PolicyCommon,
 }
 
 impl<'a> Proc<'a> {
@@ -108,8 +115,11 @@ impl<'a> Proc<'a> {
         let proc_opt = match proc_name {
             REGEX_PROC => {
                 validate_args_len(proc_name, args.len(), 1)?;
-                let re = Regex::new(&args[0])?;
-                Proc::Regex(re)
+                Proc::Regex(Regex::new(&args[0])?)
+            }
+            REGEX_FIND_PROC => {
+                validate_args_len(proc_name, args.len(), 1)?;
+                Proc::RegexFind(Regex::new(&args[0])?)
             }
             EXTRACT_JSON => {
                 validate_args_len(proc_name, args.len(), 1)?;
@@ -146,10 +156,12 @@ impl<'a> Proc<'a> {
     /// Returns the processed value as a string.
     fn handle(&self, value: String) -> String {
         match self {
-            Proc::Regex(re) => match re.captures(&value) {
-                Some(m) => m.get(1).map_or("", |s| s.as_str()).to_string(),
-                None => "".to_string(),
-            },
+            Proc::Regex(re) => re_extract_matches(re, &value),
+            Proc::RegexFind(re) => re
+                .find(&value)
+                .map(|m| m.as_str())
+                .unwrap_or_default()
+                .to_string(),
             Proc::Replace(old, new) => value.replace(old, new),
             Proc::ExtractJson(path) => gjson::get(&value, path).to_string(),
             Proc::TrimSpace => value.trim().to_string(),
@@ -172,4 +184,43 @@ fn validate_args_len(proc_name: &str, args_len: usize, len: usize) -> Result<(),
         ));
     }
     Ok(())
+}
+
+fn re_extract_matches(re: &Regex, haystack: &str) -> String {
+    let cap_groups = re.captures_len();
+    match re.captures(haystack) {
+        Some(m) => (1..cap_groups)
+            .filter_map(|i| m.get(i))
+            .map(|cap| cap.as_str())
+            .collect(),
+        None => "".to_string(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn regex_proc_matching_group() {
+        let re = Regex::new(r"(?:https?://)(?<domain>[a-zA-Z0-9.-]+)/").unwrap();
+        let proc = Proc::Regex(re);
+        let res = proc.handle("http://www.example.com/p1/?q=2".to_string());
+        assert_eq!(res, "www.example.com");
+    }
+    #[test]
+    fn regex_proc_only_capture_groups() {
+        let re = Regex::new(r"(https?://)(?<domain>[a-zA-Z0-9.-]+)/").unwrap();
+        let proc = Proc::Regex(re);
+        let res = proc.handle("http://www.example.com/p1/?q=2".to_string());
+        assert_eq!(res, "http://www.example.com");
+    }
+
+    #[test]
+    fn regex_find_proc() {
+        let re = Regex::new(r"(?:https?://)(?<domain>[a-zA-Z0-9.-]+)/").unwrap();
+        let proc = Proc::RegexFind(re);
+        let res = proc.handle("http://www.example.com/p1/?q=2".to_string());
+        assert_eq!(res, "http://www.example.com/");
+    }
 }
