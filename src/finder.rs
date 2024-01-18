@@ -163,7 +163,7 @@ impl<'a> Finder<'a> {
             (false, true) => {
                 let tmp_res: Vec<String> = sel
                     .iter()
-                    .filter_map(|item| self.adjust_result_value(item))
+                    .filter_map(|item| self.handle_selection(item))
                     .collect();
 
                 if !self.join_sep.is_empty() {
@@ -174,7 +174,7 @@ impl<'a> Finder<'a> {
             }
             _ => {
                 let item = sel.first();
-                if let Some(tmp_val) = self.adjust_result_value(item) {
+                if let Some(tmp_val) = self.handle_selection(item) {
                     cast_value(tmp_val, self.cast)
                 } else {
                     Value::Null
@@ -189,17 +189,15 @@ impl<'a> Finder<'a> {
         v
     }
 
-    /// Adjusts the result value according to the extract type and the pipeline
-    fn adjust_result_value(&self, sel: Selection) -> Option<String> {
-        if let Some(extracted) = extract_data(sel, self.extract) {
+    /// Handles the result selection according to the extract type and the pipeline
+    fn handle_selection(&self, sel: Selection) -> Option<String> {
+        extract_data(sel, self.extract).map(|extracted| {
             if let Some(ref pipeline) = self.pipeline {
-                Some(pipeline.handle(extracted))
+                pipeline.handle(extracted)
             } else {
-                Some(extracted)
+                extracted
             }
-        } else {
-            None
-        }
+        })
     }
 
     fn parse_children_to_map(&self, element: &Selection) -> Value {

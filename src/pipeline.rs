@@ -223,4 +223,11 @@ mod tests {
         let res = proc.handle("http://www.example.com/p1/?q=2".to_string());
         assert_eq!(res, "http://www.example.com/");
     }
+
+    #[test]
+    fn extract_json() {
+        let proc = Proc::ExtractJson("a.b.c");
+        let res = proc.handle(r#"{"a":{"b":{"c":"d"}}}"#.to_string());
+        assert_eq!(res, "d");
+    }
 }
