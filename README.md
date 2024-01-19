@@ -127,6 +127,12 @@ fn main() {
 
 ```
 
+#### More examples
+
+- [examples/multithread_scope.rs](./examples/multithread_scope.rs)
+- [examples/multithread.rs](./examples/multithread.rs)
+ 
+
 ## Features
 
 - `json_cfg` -- optional, allow to load config from JSON string.

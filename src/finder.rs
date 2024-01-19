@@ -35,6 +35,7 @@ pub struct Finder<'a> {
 
 impl<'a> Finder<'a> {
     /// Creates a new Finder instance from the given `Config's` instance
+    /// it's lifetime pretty depends on `Config`'s lifetime.
     ///
     /// # Arguments
     /// * `config` - `Config` instance
