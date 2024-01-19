@@ -19,7 +19,7 @@ children:
       - name: snippet
         base_path: a.result__snippet
         extract: html
-        pipeline: [ [ policy_highlight ] ]
+        pipeline: [ [ policy_highlight ], [ trim_space ] ]
 ";
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -39,7 +39,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Sending dummy pages to the channel. it can be any amount of pages, but they must be the same type of markup.
     // For instance, presented config can handle only duckduckgo search results pages and nothing more.
-    for _ in 0..10 {
+    for _ in 0..1000 {
         let html_page = include_str!("../test_data/page_0.html");
         tx.send(html_page)?;
     }
