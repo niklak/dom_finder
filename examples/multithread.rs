@@ -51,7 +51,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // dropping sender -- we don't need it anymore
     drop(tx);
 
-    let workers: Vec<usize> = (1..concurrency + 1).into_iter().collect();
+    let workers: Vec<usize> = (1..concurrency + 1).collect();
     let mut handles: Vec<JoinHandle<()>> = vec![];
 
     for i in workers {
@@ -63,7 +63,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             while let Ok(html_page) = rx.recv() {
                 // Using `Finder` instance to parse, without cloning it
-                let _ = finder.parse(&html_page);
+                let _ = finder.parse(html_page);
                 // result is omitted here, but in the normal case it may be passed to another channel,
                 // or it may be collected in some storage (database, etc.).
                 total += 1;
