@@ -19,6 +19,10 @@ children:
         base_path: a.result__snippet
         extract: html
         pipeline: [ [ policy_highlight ] ]
+      - name: label
+        base_path: .label
+        extract: text
+        pipeline: [ [ trim_space ] ]
 ";
 
 const HTML_DOC: &str = include_str!("../test_data/page_0.html");
@@ -106,4 +110,28 @@ fn remove_selection() {
     assert_eq!(feedback_caption.unwrap(), "Feedback");
     let html = doc.html();
     assert!(!html.contains("feedback-btn"));
+}
+
+#[test]
+fn result_is_empty() {
+    let cfg_yaml = r"
+    name: root
+    base_path: html
+    children:
+      - name: results
+        base_path: div.serp__results div.result
+        many: true
+        children:
+          # some non-existing element
+          - name: label
+            base_path: .label
+            extract: text
+  ";
+    let cfg = Config::from_yaml(cfg_yaml).unwrap();
+    let finder = Finder::new(&cfg).unwrap();
+    let doc = Document::from(HTML_DOC);
+
+    let res = finder.parse_document(&doc);
+    let val = res.from_path("root.results");
+    assert!(val.is_none());
 }

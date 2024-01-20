@@ -98,9 +98,19 @@ children:
         base_path: h2.result__title > a
         pipeline: [ [ policy_highlight ] ]
         children:
-          - name: url
-            inherit: true
-            extract: href
+          - name: urls
+            # because of `first_occurrence: true`, we will handle the first non-empty element in the children
+            first_occurrence: true
+            # instead of `urls` key there will be `url` key, because of `flatten`
+            inherit: true 
+            flatten: true
+            children:
+             - name: url
+               inherit: true
+               extract: href
+             - name: url
+               inherit: true
+               extract: ping
           - name: title
             inherit: true
             extract: text

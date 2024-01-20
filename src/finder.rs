@@ -110,6 +110,9 @@ impl<'a> Finder<'a> {
     /// # Arguments
     /// * `html` - the html to parse
     ///
+    /// # Returns
+    /// `Value::Object`
+    /// 
     /// # Examples
     /// ```
     /// use dom_finder::{Config, Finder};
@@ -135,6 +138,8 @@ impl<'a> Finder<'a> {
     /// Useful when you need access to the `Document` outside of the `Finder`.
     /// # Arguments
     /// * `doc` - the `Document` to parse
+    /// # Returns
+    /// `Value::Object`
     pub fn parse_document(&self, doc: &Document) -> Value {
         let sel = Selection::from(doc.root());
         let val = self.parse_value(&sel);
@@ -380,6 +385,23 @@ mod tests {
                inherit: true
                extract: href
                pipeline: [[regex]]
+        ";
+        let cfg = Config::from_yaml(cfg_yml).unwrap();
+
+        let finder = Finder::new(&cfg);
+        assert!(finder.is_err());
+    }
+
+    #[test]
+    fn finder_pipeline_non_existing_proc() {
+        let cfg_yml: &str = r"
+        name: root
+        base_path: html
+        children:
+          - name: all_links
+            base_path: a[href]
+            many: true
+            pipeline: [[non_existing_proc]]
         ";
         let cfg = Config::from_yaml(cfg_yml).unwrap();
 

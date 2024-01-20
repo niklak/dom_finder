@@ -46,7 +46,7 @@ children:
 const HTML_DOC: &str = include_str!("../test_data/page_nutrition.html");
 
 #[test]
-fn get_first_string_value() {
+fn pipeline_extract_first_item() {
     let cfg = Config::from_yaml(CFG_YAML).unwrap();
     let finder = Finder::new(&cfg).unwrap();
 
