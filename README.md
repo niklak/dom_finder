@@ -5,6 +5,7 @@
 [![Download](https://img.shields.io/crates/d/dom_finder.svg?style=flat)](https://crates.io/crates/dom_finder)
 [![docs.rs docs](https://img.shields.io/badge/docs-latest-blue.svg?style=flat)](https://docs.rs/dom_finder)
 [![ci](https://github.com/niklak/dom_finder/actions/workflows/rust.yml/badge.svg)](https://github.com/niklak/dom_finder/actions/workflows/rust.yml)
+[![codecov](https://codecov.io/gh/niklak/dom_finder/graph/badge.svg?token=MFMJPTYVWT)](https://codecov.io/gh/niklak/dom_finder)
 
 `dom_finder` is a Rust crate that provides functionality for finding elements in the Document Object Model (DOM) of HTML documents. 
 It allows you to easily locate specific elements based on various CSS criteria. 
