@@ -1,5 +1,4 @@
 use dom_finder::{Config, Finder};
-use dom_query::Document;
 
 const CFG_YAML: &str = r"
 name: root
