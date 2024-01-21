@@ -11,6 +11,7 @@ trait FromValue: Sized {
 struct SerpLink {
     url: String,
     title: String,
+    nofollow: bool,
 }
 
 impl FromValue for SerpLink {
@@ -19,9 +20,11 @@ impl FromValue for SerpLink {
             Value::Object(o) => {
                 let url: Option<String> = o.get("url").and_then(|v| v.to_owned().into());
                 let title: Option<String> = o.get("title").and_then(|v| v.to_owned().into());
+                let nofollow: Option<bool> = o.get("nofollow").and_then(|v| v.to_owned().into());
                 Some(Self {
                     url: url.unwrap_or_default(),
                     title: title.unwrap_or_default(),
+                    nofollow: nofollow.unwrap_or_default(),
                 })
             }
             _ => None,
@@ -111,6 +114,13 @@ children:
              - name: url
                inherit: true
                extract: ping
+
+          - name: nofollow
+            inherit: true
+            extract: rel
+            pipeline: [ [ regex_find, nofollow ] ]
+            cast: bool
+
           - name: title
             inherit: true
             extract: text
@@ -132,11 +142,13 @@ fn get_last_link() {
     let results = finder.parse(HTML_DOC);
 
     let serp = Serp::from_value(results).unwrap();
+
     assert_eq!(
         serp.items[serp.items.len() - 1].link,
         SerpLink {
             url: "https://www.coingecko.com/en/coins/ethereum".to_string(),
             title: "Ethereum Price: ETH Live Price Chart & News | CoinGecko".to_string(),
+            nofollow: true,
         }
     );
 }

@@ -248,7 +248,6 @@ impl<'a> Finder<'a> {
                         for (key, val) in obj {
                             // push flat maps right in the result values
                             m.insert(key, val);
-                            //values.push([(key, val)].into_iter().collect::<InnerMap>()); -- wrong
                         }
                     } else {
                         m.insert(inline.name.to_string(), v);

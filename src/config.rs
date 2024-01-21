@@ -67,6 +67,21 @@ pub struct Config {
 
 impl Config {
     /// Creates a new `Config` instance from the given YAML string.
+    /// 
+    /// # Arguments
+    /// * `data` - a YAML string that represents the configuration.
+    /// # Examples
+    /// ```
+    /// use dom_finder::Config;
+    /// let cfg_yml: &str = r#"
+    /// name: all_links
+    /// base_path: html body a[href]
+    /// many: true
+    /// extract: href
+    /// "#;
+    /// let cfg = Config::from_yaml(cfg_yml);
+    /// assert!(cfg.is_ok());
+    /// ```
     pub fn from_yaml(data: &str) -> Result<Self, serde_yaml::Error> {
         serde_yaml::from_str(data)
     }
@@ -92,6 +107,23 @@ impl Config {
 #[cfg(feature = "json_cfg")]
 impl Config {
     /// Creates a new `Config` instance from the given JSON string.
+    /// This method is available only if the `json_cfg` feature is enabled.
+    /// # Arguments
+    /// * `data` - a JSON string that represents the configuration.
+    /// # Examples
+    /// ```
+    /// use dom_finder::Config;
+    /// let cfg_json: &str = r#"
+    /// {
+    ///  "name": "all_links",
+    ///  "base_path": "html body a[href]",
+    ///  "many": true,
+    ///  "extract": "href"
+    /// }
+    /// "#;
+    /// let cfg = Config::from_json(cfg_json);
+    /// assert!(cfg.is_ok());
+    /// ```
     pub fn from_json(data: &str) -> Result<Self, serde_json::Error> {
         serde_json::from_str(data)
     }
