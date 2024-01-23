@@ -52,7 +52,7 @@ impl FromValue for SerpItem {
             Value::Object(o) => {
                 let link: Option<SerpLink> = o
                     .get("link")
-                    .and_then(|v| SerpLink::from_value(v));
+                    .and_then(SerpLink::from_value);
                 let snippet: Option<String> = o.get("snippet").and_then(|v| v.to_owned().into());
                 let index: Option<i64> = o.get("index").and_then(|v| v.to_owned().into());
                 Some(Self {
