@@ -4,7 +4,7 @@ use std::option::Option;
 ///A test example of how to extract a struct from a Value
 
 trait FromValue: Sized {
-    fn from_value(value: Value) -> Option<Self>;
+    fn from_value(value: &Value) -> Option<Self>;
 }
 
 #[derive(Debug, Default, PartialEq)]
@@ -15,12 +15,12 @@ struct SerpLink {
 }
 
 impl FromValue for SerpLink {
-    fn from_value(value: Value) -> Option<Self> {
+    fn from_value(value: &Value) -> Option<Self> {
         match value {
             Value::Object(o) => {
-                let url: Option<String> = o.get("url").and_then(|v| v.to_owned().into());
-                let title: Option<String> = o.get("title").and_then(|v| v.to_owned().into());
-                let nofollow: Option<bool> = o.get("nofollow").and_then(|v| v.to_owned().into());
+                let url: Option<String> = o.get("url").and_then(|v| v.into());
+                let title: Option<String> = o.get("title").and_then(|v| v.into());
+                let nofollow: Option<bool> = o.get("nofollow").and_then(|v| v.into());
                 Some(Self {
                     url: url.unwrap_or_default(),
                     title: title.unwrap_or_default(),
@@ -47,12 +47,12 @@ impl SerpItem {
 }
 
 impl FromValue for SerpItem {
-    fn from_value(value: Value) -> Option<Self> {
+    fn from_value(value: &Value) -> Option<Self> {
         match value {
             Value::Object(o) => {
                 let link: Option<SerpLink> = o
                     .get("link")
-                    .and_then(|v| SerpLink::from_value(v.to_owned()));
+                    .and_then(|v| SerpLink::from_value(v));
                 let snippet: Option<String> = o.get("snippet").and_then(|v| v.to_owned().into());
                 let index: Option<i64> = o.get("index").and_then(|v| v.to_owned().into());
                 Some(Self {
@@ -72,12 +72,12 @@ struct Serp {
 }
 
 impl FromValue for Serp {
-    fn from_value(value: Value) -> Option<Self> {
+    fn from_value(value: &Value) -> Option<Self> {
         if let Some(val) = value.from_path("root.results") {
             match val {
                 Value::Array(items) => {
                     let items: Vec<SerpItem> =
-                        items.into_iter().filter_map(SerpItem::from_value).collect();
+                        items.iter().filter_map(SerpItem::from_value).collect();
                     Some(Self { items })
                 }
                 _ => None,
@@ -141,7 +141,7 @@ fn get_last_link() {
 
     let results = finder.parse(HTML_DOC);
 
-    let serp = Serp::from_value(results).unwrap();
+    let serp = Serp::from_value(&results).unwrap();
 
     assert_eq!(
         serp.items[serp.items.len() - 1].link,
@@ -160,7 +160,7 @@ fn get_every_item_is_full() {
 
     let results = finder.parse(HTML_DOC);
 
-    let serp = Serp::from_value(results).unwrap();
+    let serp = Serp::from_value(&results).unwrap();
     assert!(serp.items.iter().all(|item| item.is_full()),);
 }
 
@@ -171,6 +171,6 @@ fn get_count_results() {
 
     let results = finder.parse(HTML_DOC);
 
-    let serp = Serp::from_value(results).unwrap();
+    let serp = Serp::from_value(&results).unwrap();
     assert_eq!(serp.items.len(), 21);
 }

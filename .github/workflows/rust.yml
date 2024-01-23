@@ -20,10 +20,10 @@ jobs:
     - name: Install cargo-audit
       run: cargo install cargo-audit
     - name: Build
-      run: cargo build --verbose --all-features
+      run: cargo build --all-features
     - name: Run tests
-      run: cargo test --verbose --all-features
+      run: cargo test --all-features
     - name: Run clippy
-      run: cargo clippy --verbose --all-targets -- -D warnings
+      run: cargo clippy --all-targets -- -D warnings
     - name: Run audit
       run: cargo audit

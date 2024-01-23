@@ -4,6 +4,7 @@ pub mod finder;
 pub mod pipeline;
 pub mod sanitize_policy;
 pub mod value;
+mod value_from;
 
 pub use self::config::{CastType, Config};
 pub use self::errors::*;
