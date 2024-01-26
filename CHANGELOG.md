@@ -2,6 +2,10 @@
 
 All notable changes to the `dom_finder` crate will be documented in this file.
 
+## [Unreleased]
+
+## Changed
+- `Finder` instance's lifetime now doesn't depends on `Config` lifetime.
 
 ## [0.2.3] - 2024-01-17
 

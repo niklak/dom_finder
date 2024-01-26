@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use regex::Regex;
 
 use crate::errors::PipelineError;
@@ -24,7 +26,7 @@ pub struct Pipeline<'a> {
     procs: Vec<Proc<'a>>,
 }
 
-impl<'a> Pipeline<'a> {
+impl <'a>Pipeline<'a> {
     /// Creates a new `Pipeline` instance based on the provided raw pipelines.
     ///
     /// # Arguments
@@ -34,7 +36,7 @@ impl<'a> Pipeline<'a> {
     /// # Returns
     ///
     /// Returns a new `Result<Pipeline, ParseError>` instance. Because regex can fail to compile and user can provide an invalid procedure.
-    pub fn new(raw_pipelines: &'a Vec<Vec<String>>) -> Result<Self, ParseError> {
+    pub fn new<'b>(raw_pipelines: &'b Vec<Vec<String>>) -> Result<Pipeline<'a>, ParseError>{
         let mut procs = vec![];
         for proc_args in raw_pipelines {
             if let Some((proc_name, args)) = proc_args.split_first() {
@@ -42,7 +44,7 @@ impl<'a> Pipeline<'a> {
                 procs.push(proc);
             }
         }
-        Ok(Self { procs })
+        Ok(Pipeline { procs })
     }
 
     /// Handles the given value by applying all the processing procedures in the pipeline.
@@ -75,9 +77,9 @@ pub enum Proc<'a> {
     /// `Regex.find` is applied It requires one argument - the `Regex`.
     RegexFind(Regex),
     /// requires two arguments - the old and the new string.
-    Replace(&'a str, &'a str),
+    Replace(Cow<'a, str>, Cow<'a, str>),
     /// requires one argument - the path to the json value, if the string represents a json.
-    ExtractJson(&'a str),
+    ExtractJson(Cow<'a, str>),
     /// requires no arguments. It trims spaces at the start and the end of the string.
     TrimSpace,
     /// requires one argument - it trims characters from the (start and end of) string with the cut set.
@@ -111,7 +113,7 @@ impl<'a> Proc<'a> {
     /// * user can provide an invalid procedure
     /// * user can provide an invalid number of arguments for a procedure
 
-    fn new(proc_name: &str, args: &'a [String]) -> Result<Self, PipelineError> {
+    fn new<'b>(proc_name: &'b str, args: &'b [String]) -> Result<Self, PipelineError> {
         let proc_opt = match proc_name {
             REGEX_PROC => {
                 validate_args_len(proc_name, args.len(), 1)?;
@@ -123,11 +125,11 @@ impl<'a> Proc<'a> {
             }
             EXTRACT_JSON => {
                 validate_args_len(proc_name, args.len(), 1)?;
-                Proc::ExtractJson(&args[0])
+                Proc::ExtractJson(Cow::from(args[0].clone()))
             }
             REPLACE_PROC => {
                 validate_args_len(proc_name, args.len(), 2)?;
-                Proc::Replace(&args[0], &args[1])
+                Proc::Replace(Cow::from(args[0].clone()), Cow::from(args[1].clone()))
             }
             TRIM_SPACE => Proc::TrimSpace,
             TRIM => {
@@ -162,7 +164,7 @@ impl<'a> Proc<'a> {
                 .map(|m| m.as_str())
                 .unwrap_or_default()
                 .to_string(),
-            Proc::Replace(old, new) => value.replace(old, new),
+            Proc::Replace(old, new) => value.replace(old.as_ref(), new),
             Proc::ExtractJson(path) => gjson::get(&value, path).to_string(),
             Proc::TrimSpace => value.trim().to_string(),
             Proc::Trim(pat) => value.trim_matches(pat.as_slice()).to_string(),
@@ -226,7 +228,7 @@ mod tests {
 
     #[test]
     fn extract_json() {
-        let proc = Proc::ExtractJson("a.b.c");
+        let proc = Proc::ExtractJson(Cow::from("a.b.c"));
         let res = proc.handle(r#"{"a":{"b":{"c":"d"}}}"#.to_string());
         assert_eq!(res, "d");
     }

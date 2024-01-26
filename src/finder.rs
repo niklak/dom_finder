@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use dom_query::{Document, Matcher, Selection};
 use tendril::StrTendril;
 
@@ -17,10 +19,10 @@ const EXTRACT_HTML: &str = "html";
 /// Finder is the main struct that is used to parse the html
 #[derive(Debug)]
 pub struct Finder<'a> {
-    name: &'a str,
-    extract: &'a str,
+    name: Cow<'a, str>,
+    extract: Cow<'a, str>,
     cast: CastType,
-    join_sep: &'a str,
+    join_sep: Cow<'a, str>,
     many: bool,
     enumerate: bool,
     inherit: bool,
@@ -53,11 +55,11 @@ impl<'a> Finder<'a> {
     /// let finder = Finder::new(&cfg);
     /// assert!(finder.is_ok());
     /// ```
-    pub fn new(config: &'a Config) -> Result<Finder<'a>, ParseError> {
-        Self::from_config(config, true)
+    pub fn new<'b>(config: &'b Config) -> Result<Finder<'a>, ParseError>{
+        Finder::from_config(config, true)
     }
 
-    fn from_config(config: &'a Config, is_root: bool) -> Result<Finder<'a>, ParseError> {
+    fn from_config<'b>(config: &'b Config, is_root: bool) -> Result<Finder<'a>, ParseError> {
         config.validate()?;
         let base_path = config.base_path.as_str();
         let matcher = if !base_path.is_empty() {
@@ -76,10 +78,10 @@ impl<'a> Finder<'a> {
             None
         };
         let mut p = Finder {
-            name: config.name.as_str(),
-            extract: config.extract.as_str(),
+            name: Cow::from(config.name.clone()),
+            extract: Cow::from(config.extract.clone()),
             cast: config.cast,
-            join_sep: config.join_sep.as_str(),
+            join_sep: Cow::from(config.join_sep.clone()),
             many: config.many,
             enumerate: config.enumerate,
             inherit: config.inherit,
@@ -173,7 +175,7 @@ impl<'a> Finder<'a> {
                     .collect();
 
                 if !self.join_sep.is_empty() {
-                    Value::from(tmp_res.join::<&str>(self.join_sep))
+                    Value::from(tmp_res.join(&self.join_sep))
                 } else {
                     Value::from_iter(tmp_res.into_iter().map(|it| cast_value(it, self.cast)))
                 }
@@ -197,7 +199,7 @@ impl<'a> Finder<'a> {
 
     /// Handles the result selection according to the extract type and the pipeline
     fn handle_selection(&self, sel: Selection) -> Option<String> {
-        extract_data(sel, self.extract).map(|extracted| {
+        extract_data(sel, &self.extract).map(|extracted| {
             if let Some(ref pipeline) = self.pipeline {
                 pipeline.handle(extracted)
             } else {

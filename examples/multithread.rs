@@ -2,7 +2,6 @@ use std::sync::Arc;
 use std::thread::{self, JoinHandle};
 
 use crossbeam_channel::unbounded;
-use once_cell::sync::Lazy;
 
 use dom_finder::{Config, Finder};
 
@@ -34,10 +33,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Setting favorite concurrency number;
     let concurrency: usize = 2;
 
-    // For Finder purpose we need to keep CFG alive to the end of the program. So we use `Lazy` to initialize it.
-    static CFG: Lazy<Config> = Lazy::new(|| Config::from_yaml(CFG_YAML).unwrap());
+    // Creating a `Config` instance from yaml string.
+    let cfg: Config = Config::from_yaml(CFG_YAML).unwrap();
     // Setting up the finder inside `Arc` to be able to clone it later.
-    let finder = Arc::new(Finder::new(&CFG)?);
+    let finder = Arc::new(Finder::new(&cfg)?);
+
+    // Unnecessary: At this point we do not need the config anymore, so we can safely drop it.
+    drop(cfg);
 
     // Creating a channel to send html pages -- just for testing purposes
     let (tx, rx) = unbounded::<&str>();
