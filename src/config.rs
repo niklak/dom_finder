@@ -145,6 +145,21 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "json_cfg")]
+    fn config_json_is_valid() {
+        let cfg_json: &str = r#"
+        {
+            "name": "footer_links",
+            "base_path": "footer a[href]",
+            "many": true,
+            "extract": "href"
+        }
+        "#;
+        let cfg = Config::from_json(cfg_json).unwrap();
+        assert!(cfg.validate().is_ok());
+    }
+
+    #[test]
     fn config_with_children_is_valid() {
         let cfg_yml: &str = r"
         name: root
