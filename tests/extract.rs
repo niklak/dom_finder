@@ -23,6 +23,10 @@ children:
         base_path: .label
         extract: text
         pipeline: [ [ trim_space ] ]
+      - name: nofollow
+        base_path: h2.result__title > a[href][rel=nofollow]
+        extract: rel
+        cast: bool
 ";
 
 const HTML_DOC: &str = include_str!("../test_data/page_0.html");
