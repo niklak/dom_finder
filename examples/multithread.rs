@@ -34,12 +34,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let concurrency: usize = 2;
 
     // Creating a `Config` instance from yaml string.
-    let cfg: Config = Config::from_yaml(CFG_YAML).unwrap();
+    let cfg: Config = Config::from_yaml(CFG_YAML)?;
     // Setting up the finder inside `Arc` to be able to clone it later.
     let finder = Arc::new(Finder::new(&cfg)?);
-
     // Unnecessary: At this point we do not need the config anymore, so we can safely drop it.
     drop(cfg);
+
+    // or just in one line:
+    // let finder: Arc<Finder> = Arc::new(Config::from_yaml(CFG_YAML)?.try_into()?);
 
     // Creating a channel to send html pages -- just for testing purposes
     let (tx, rx) = unbounded::<&str>();

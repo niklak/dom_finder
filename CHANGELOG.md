@@ -2,6 +2,11 @@
 
 All notable changes to the `dom_finder` crate will be documented in this file.
 
+## [Unreleased]
+
+### Added
+- implement `TryFrom<Config>` trait for `Finder`.
+
 ## [0.2.4] - 2024-01-27
 
 ### Changed

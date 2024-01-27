@@ -31,8 +31,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let concurrency: usize = 2;
 
     // Setting up the finder
-    let cfg = Config::from_yaml(CFG_YAML)?;
-    let finder = Finder::new(&cfg)?;
+    let finder: Finder = Config::from_yaml(CFG_YAML)?.try_into()?;
 
     // Creating a channel to send html pages -- just for testing purposes
     let (tx, rx) = unbounded::<&str>();

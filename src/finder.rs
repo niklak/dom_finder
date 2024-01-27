@@ -300,6 +300,13 @@ fn cast_value(s: String, cast: CastType) -> Value {
     }
 }
 
+impl <'a> TryFrom<Config> for Finder<'a> {
+    type Error = ParseError;
+    fn try_from(config: Config) -> Result<Self, Self::Error> {
+        Finder::new(&config)
+    }
+}
+
 /// Extracts the data from the given selection according to the extract type
 /// The extract type can be one of the following:
 /// - text - extracts the text of the selection
@@ -353,9 +360,8 @@ mod tests {
                extract: href
                pipeline: [[regex, 'https?://([a-zA-Z0-9.-]+)/']]
         ";
-        let cfg = Config::from_yaml(cfg_yml).unwrap();
 
-        let finder = Finder::new(&cfg);
+        let finder: Result<Finder, _> = Config::from_yaml(cfg_yml).unwrap().try_into();
         assert!(finder.is_ok());
     }
 
