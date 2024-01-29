@@ -51,6 +51,9 @@ fn main() {
     // Creating a new Finder instance
     let finder = Finder::new(&cfg).unwrap();
 
+    // or in one line:
+    // let finder: Finder = Config::from_yaml(CFG_YAML).unwrap().try_into().unwrap();
+    
     // parsing html-string (actually &str), and getting the result as `Value`.
     // Returned `Value` from `parse` method is always `Value::Object` and it has only one key (String).
     let results: Value = finder.parse(HTML_DOC);

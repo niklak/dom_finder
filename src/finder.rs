@@ -171,7 +171,7 @@ impl<'a> Finder<'a> {
             (false, true) => {
                 let tmp_res: Vec<String> = sel
                     .iter()
-                    .filter_map(|item| self.handle_selection(item))
+                    .filter_map(|item| self.handle_selection(&item))
                     .collect();
 
                 if !self.join_sep.is_empty() {
@@ -182,7 +182,7 @@ impl<'a> Finder<'a> {
             }
             _ => {
                 let item = sel.first();
-                if let Some(tmp_val) = self.handle_selection(item) {
+                if let Some(tmp_val) = self.handle_selection(&item) {
                     cast_value(tmp_val, self.cast)
                 } else {
                     Value::Null
@@ -198,8 +198,9 @@ impl<'a> Finder<'a> {
     }
 
     /// Handles the result selection according to the extract type and the pipeline
-    fn handle_selection(&self, sel: Selection) -> Option<String> {
+    fn handle_selection(&self, sel: &Selection) -> Option<String> {
         extract_data(sel, &self.extract).map(|extracted| {
+            let extracted = extracted.to_string();
             if let Some(ref pipeline) = self.pipeline {
                 pipeline.handle(extracted)
             } else {
@@ -313,18 +314,18 @@ impl <'a> TryFrom<Config> for Finder<'a> {
 /// - inner_text - extracts the text of the selection without the text of the children
 /// - html - extracts the html of the selection
 #[inline(always)]
-fn extract_data(sel: Selection, extract_type: &str) -> Option<String> {
+fn extract_data(sel: &Selection, extract_type: &str) -> Option<StrTendril> {
     match extract_type {
-        EXTRACT_TEXT => Some(sel.text().to_string()),
-        EXTRACT_INNER_TEXT => Some(get_inner_text(sel).to_string()),
-        EXTRACT_HTML => Some(sel.html().to_string()),
-        _ => sel.attr(extract_type).map(|attr| attr.to_string()),
+        EXTRACT_TEXT => Some(sel.text()),
+        EXTRACT_INNER_TEXT => Some(get_inner_text(sel)),
+        EXTRACT_HTML => Some(sel.html()),
+        _ => sel.attr(extract_type),
     }
 }
 
 /// Returns the inner text of the selection without the text of the children
 #[inline(always)]
-fn get_inner_text(sel: Selection) -> StrTendril {
+fn get_inner_text(sel: &Selection) -> StrTendril {
     let nodes = sel.nodes();
 
     if nodes.is_empty() {
