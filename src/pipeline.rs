@@ -59,7 +59,7 @@ impl <'a>Pipeline<'a> {
     pub fn handle(&self, value: String) -> String {
         let mut res: String = value;
         for command in self.procs.iter() {
-            res = command.handle(res)
+            res = command.handle(&res)
         }
         res
     }
@@ -156,23 +156,23 @@ impl<'a> Proc<'a> {
     /// # Returns
     ///
     /// Returns the processed value as a string.
-    fn handle(&self, value: String) -> String {
+    fn handle(&self, value: &str) -> String {
         match self {
-            Proc::Regex(re) => re_extract_matches(re, &value),
+            Proc::Regex(re) => re_extract_matches(re, value),
             Proc::RegexFind(re) => re
-                .find(&value)
+                .find(value)
                 .map(|m| m.as_str())
                 .unwrap_or_default()
                 .to_string(),
             Proc::Replace(old, new) => value.replace(old.as_ref(), new),
-            Proc::ExtractJson(path) => gjson::get(&value, path).to_string(),
+            Proc::ExtractJson(path) => gjson::get(value, path).to_string(),
             Proc::TrimSpace => value.trim().to_string(),
             Proc::Trim(pat) => value.trim_matches(pat.as_slice()).to_string(),
-            Proc::HtmlUnescape => html_escape::decode_html_entities(&value).to_string(),
-            Proc::PolicyHighlight => sanitize_policy::HIGHLIGHT_POLICY.clean(&value),
-            Proc::PolicyTable => sanitize_policy::TABLE_POLICY.clean(&value),
-            Proc::PolicyList => sanitize_policy::LIST_POLICY.clean(&value),
-            Proc::PolicyCommon => sanitize_policy::COMMON_POLICY.clean(&value),
+            Proc::HtmlUnescape => html_escape::decode_html_entities(value).to_string(),
+            Proc::PolicyHighlight => sanitize_policy::HIGHLIGHT_POLICY.clean(value),
+            Proc::PolicyTable => sanitize_policy::TABLE_POLICY.clean(value),
+            Proc::PolicyList => sanitize_policy::LIST_POLICY.clean(value),
+            Proc::PolicyCommon => sanitize_policy::COMMON_POLICY.clean(value),
         }
     }
 }
@@ -207,14 +207,14 @@ mod tests {
     fn regex_proc_matching_group() {
         let re = Regex::new(r"(?:https?://)(?<domain>[a-zA-Z0-9.-]+)/").unwrap();
         let proc = Proc::Regex(re);
-        let res = proc.handle("http://www.example.com/p1/?q=2".to_string());
+        let res = proc.handle("http://www.example.com/p1/?q=2");
         assert_eq!(res, "www.example.com");
     }
     #[test]
     fn regex_proc_only_capture_groups() {
         let re = Regex::new(r"(https?://)(?<domain>[a-zA-Z0-9.-]+)/").unwrap();
         let proc = Proc::Regex(re);
-        let res = proc.handle("http://www.example.com/p1/?q=2".to_string());
+        let res = proc.handle("http://www.example.com/p1/?q=2");
         assert_eq!(res, "http://www.example.com");
     }
 
@@ -222,14 +222,14 @@ mod tests {
     fn regex_find_proc() {
         let re = Regex::new(r"(?:https?://)(?<domain>[a-zA-Z0-9.-]+)/").unwrap();
         let proc = Proc::RegexFind(re);
-        let res = proc.handle("http://www.example.com/p1/?q=2".to_string());
+        let res = proc.handle("http://www.example.com/p1/?q=2");
         assert_eq!(res, "http://www.example.com/");
     }
 
     #[test]
     fn extract_json() {
         let proc = Proc::ExtractJson(Cow::from("a.b.c"));
-        let res = proc.handle(r#"{"a":{"b":{"c":"d"}}}"#.to_string());
+        let res = proc.handle(r#"{"a":{"b":{"c":"d"}}}"#);
         assert_eq!(res, "d");
     }
 }
