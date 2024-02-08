@@ -160,3 +160,23 @@ fn inner_text() {
     assert_eq!(title.unwrap(), "Fruit Nutrition Facts");
     // while `extract: text` will capture `A Brief List of Fruit Nutrition Facts`
 }
+
+#[test]
+fn extract_vec_string() {
+  let cfg_yaml: &str = r"
+  name: root
+  base_path: html
+  children:
+    - name: urls
+      base_path: h2.result__title > a[href]
+      many: true
+      extract: href
+  ";
+
+  let finder: Finder = Config::from_yaml(cfg_yaml).unwrap().try_into().unwrap();
+  let doc = Document::from(HTML_DOC);
+  let res = finder.parse_document(&doc);
+  dbg!(&res);
+  let urls: Option<Vec<String>> = res.from_path("root.urls").unwrap().into();
+  assert_eq!(urls.unwrap().len(), 21);
+}
