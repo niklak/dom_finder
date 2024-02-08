@@ -30,6 +30,7 @@ children:
 ";
 
 const HTML_DOC: &str = include_str!("../test_data/page_0.html");
+const HTML_DOC_NUT: &str = include_str!("../test_data/page_nutrition.html");
 
 #[test]
 fn get_first_string_value() {
@@ -138,4 +139,24 @@ fn result_is_empty() {
     let res = finder.parse_document(&doc);
     let val = res.from_path("root.results");
     assert!(val.is_none());
+}
+
+#[test]
+fn inner_text() {
+    let cfg_yaml = r"
+    name: root
+    base_path: html
+    children:
+      - name: title
+        base_path: h1
+        extract: inner_text
+  ";
+    let cfg = Config::from_yaml(cfg_yaml).unwrap();
+    let finder = Finder::new(&cfg).unwrap();
+    let doc = Document::from(HTML_DOC_NUT);
+
+    let res = finder.parse_document(&doc);
+    let title: Option<String> = res.from_path("root.title").unwrap().into();
+    assert_eq!(title.unwrap(), "Fruit Nutrition Facts");
+    // while `extract: text` will capture `A Brief List of Fruit Nutrition Facts`
 }
