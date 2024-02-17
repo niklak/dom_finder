@@ -2,7 +2,10 @@
 
 All notable changes to the `dom_finder` crate will be documented in this file.
 
-## [Unreleased]
+## [0.2.5] - 2024-02-17
+
+### Changed
+- Update `dom_query`'s version to `0.3.4`.
 
 ### Added
 - implement `TryFrom<Config>` trait for `Finder`.
