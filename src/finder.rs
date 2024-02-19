@@ -55,7 +55,7 @@ impl<'a> Finder<'a> {
     /// let finder = Finder::new(&cfg);
     /// assert!(finder.is_ok());
     /// ```
-    pub fn new<'b>(config: &'b Config) -> Result<Finder<'a>, ParseError>{
+    pub fn new<'b>(config: &'b Config) -> Result<Finder<'a>, ParseError> {
         Finder::from_config(config, true)
     }
 
@@ -301,7 +301,7 @@ fn cast_value(s: String, cast: CastType) -> Value {
     }
 }
 
-impl <'a> TryFrom<Config> for Finder<'a> {
+impl<'a> TryFrom<Config> for Finder<'a> {
     type Error = ParseError;
     fn try_from(config: Config) -> Result<Self, Self::Error> {
         Finder::new(&config)

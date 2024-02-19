@@ -26,7 +26,7 @@ pub struct Pipeline<'a> {
     procs: Vec<Proc<'a>>,
 }
 
-impl <'a>Pipeline<'a> {
+impl<'a> Pipeline<'a> {
     /// Creates a new `Pipeline` instance based on the provided raw pipelines.
     ///
     /// # Arguments
@@ -36,7 +36,7 @@ impl <'a>Pipeline<'a> {
     /// # Returns
     ///
     /// Returns a new `Result<Pipeline, ParseError>` instance. Because regex can fail to compile and user can provide an invalid procedure.
-    pub fn new<'b>(raw_pipelines: &'b Vec<Vec<String>>) -> Result<Pipeline<'a>, ParseError>{
+    pub fn new<'b>(raw_pipelines: &'b Vec<Vec<String>>) -> Result<Pipeline<'a>, ParseError> {
         let mut procs = vec![];
         for proc_args in raw_pipelines {
             if let Some((proc_name, args)) = proc_args.split_first() {
@@ -231,5 +231,18 @@ mod tests {
         let proc = Proc::ExtractJson(Cow::from("a.b.c"));
         let res = proc.handle(r#"{"a":{"b":{"c":"d"}}}"#);
         assert_eq!(res, "d");
+    }
+
+    #[test]
+    fn trim() {
+        let proc = Proc::Trim(vec![' ', '-', '=']);
+        let res = proc.handle(" -=1=- ");
+        assert_eq!(res, "1");
+    }
+    #[test]
+    fn replace() {
+        let proc = Proc::Replace(Cow::from("%20"), Cow::from("+"));
+        let res = proc.handle("search/?q=mob%20100");
+        assert_eq!(res, "search/?q=mob+100");
     }
 }

@@ -50,9 +50,7 @@ impl FromValue for SerpItem {
     fn from_value(value: &Value) -> Option<Self> {
         match value {
             Value::Object(o) => {
-                let link: Option<SerpLink> = o
-                    .get("link")
-                    .and_then(SerpLink::from_value);
+                let link: Option<SerpLink> = o.get("link").and_then(SerpLink::from_value);
                 let snippet: Option<String> = o.get("snippet").and_then(|v| v.to_owned().into());
                 let index: Option<i64> = o.get("index").and_then(|v| v.to_owned().into());
                 Some(Self {

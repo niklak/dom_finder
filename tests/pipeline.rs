@@ -52,14 +52,10 @@ fn pipeline_extract_first_item() {
     let results = finder.parse(HTML_DOC);
 
     let first_item = results.from_path("root.results.0").unwrap();
-    dbg!(&results);
 
-    let name: String = first_item
-        .from_path("name")
-        .and_then(|v| v.into())
-        .unwrap();
+    let name: String = first_item.from_path("name").and_then(|v| v.into()).unwrap();
 
-    let calories: i64 = first_item 
+    let calories: i64 = first_item
         .from_path("calories")
         .and_then(|v| v.into())
         .unwrap();
@@ -77,7 +73,7 @@ fn pipeline_extract_first_item() {
         .from_path("carbohydrates")
         .and_then(|v| v.into())
         .unwrap();
-    let fiber: f64 = first_item 
+    let fiber: f64 = first_item
         .from_path("fiber")
         .and_then(|v| v.into())
         .unwrap();
@@ -85,7 +81,23 @@ fn pipeline_extract_first_item() {
         .from_path("protein")
         .and_then(|v| v.into())
         .unwrap();
-    let got = (name, calories, vitamin_c, sugar, carbohydrates, fiber, protein);
-    let expected = ("Apple".to_string(), 52_i64, "10.3mg".to_string(), 10.0, 14.0, 2.6, 0.3);
+    let got = (
+        name,
+        calories,
+        vitamin_c,
+        sugar,
+        carbohydrates,
+        fiber,
+        protein,
+    );
+    let expected = (
+        "Apple".to_string(),
+        52_i64,
+        "10.3mg".to_string(),
+        10.0,
+        14.0,
+        2.6,
+        0.3,
+    );
     assert_eq!(got, expected);
 }

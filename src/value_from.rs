@@ -1,6 +1,5 @@
 use super::value::Value;
 
-
 impl From<Value> for Option<String> {
     fn from(value: Value) -> Self {
         match value {
@@ -10,7 +9,7 @@ impl From<Value> for Option<String> {
     }
 }
 
-impl <'a>From<&'a Value> for Option<&'a str> {
+impl<'a> From<&'a Value> for Option<&'a str> {
     fn from(value: &'a Value) -> Self {
         match value {
             Value::String(val) => Some(val),
@@ -19,7 +18,7 @@ impl <'a>From<&'a Value> for Option<&'a str> {
     }
 }
 
-impl From<& Value> for Option<String> {
+impl From<&Value> for Option<String> {
     fn from(value: &Value) -> Self {
         match value {
             Value::String(val) => Some(val.clone()),
@@ -27,7 +26,6 @@ impl From<& Value> for Option<String> {
         }
     }
 }
-
 
 impl From<Value> for Option<i64> {
     fn from(value: Value) -> Self {

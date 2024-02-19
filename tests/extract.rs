@@ -1,4 +1,4 @@
-use dom_finder::{Config, Finder};
+use dom_finder::{Config, Finder, Value};
 use dom_query::Document;
 
 const CFG_YAML: &str = r"
@@ -52,8 +52,7 @@ fn get_count_results() {
 
     let results = finder.parse(HTML_DOC);
 
-    let raw_count = results.from_path("root.results.#").unwrap();
-    let count_opt: Option<i64> = raw_count.into();
+    let count_opt: Option<i64> = results.from_path("root.results.#").and_then(|v| v.into());
     assert_eq!(count_opt.unwrap(), 21);
 }
 
@@ -64,8 +63,9 @@ fn get_flat_array_from_array_objects() {
 
     let results = finder.parse(HTML_DOC);
 
-    let raw_urls = results.from_path("root.results.#.url").unwrap();
-    let urls_opt: Option<Vec<String>> = raw_urls.into();
+    let urls_opt: Option<Vec<String>> = results
+        .from_path("root.results.#.url")
+        .and_then(|v| v.into());
     let urls = urls_opt.unwrap();
 
     let expected_urls = vec![
@@ -111,7 +111,7 @@ fn remove_selection() {
     let doc = Document::from(HTML_DOC);
 
     let res = finder.parse_document(&doc);
-    let feedback_caption: Option<String> = res.from_path("root.feedback").unwrap().into();
+    let feedback_caption: Option<String> = res.from_path("root.feedback").and_then(|v| v.into());
     assert_eq!(feedback_caption.unwrap(), "Feedback");
     let html = doc.html();
     assert!(!html.contains("feedback-btn"));
@@ -156,14 +156,14 @@ fn inner_text() {
     let doc = Document::from(HTML_DOC_NUT);
 
     let res = finder.parse_document(&doc);
-    let title: Option<String> = res.from_path("root.title").unwrap().into();
+    let title: Option<String> = res.from_path("root.title").and_then(|v| v.into());
     assert_eq!(title.unwrap(), "Fruit Nutrition Facts");
     // while `extract: text` will capture `A Brief List of Fruit Nutrition Facts`
 }
 
 #[test]
 fn extract_vec_string() {
-  let cfg_yaml: &str = r"
+    let cfg_yaml: &str = r"
   name: root
   base_path: html
   children:
@@ -173,10 +173,19 @@ fn extract_vec_string() {
       extract: href
   ";
 
-  let finder: Finder = Config::from_yaml(cfg_yaml).unwrap().try_into().unwrap();
-  let doc = Document::from(HTML_DOC);
-  let res = finder.parse_document(&doc);
-  dbg!(&res);
-  let urls: Option<Vec<String>> = res.from_path("root.urls").unwrap().into();
-  assert_eq!(urls.unwrap().len(), 21);
+    let finder: Finder = Config::from_yaml(cfg_yaml).unwrap().try_into().unwrap();
+    let doc = Document::from(HTML_DOC);
+    let res = finder.parse_document(&doc);
+    let urls: Option<Vec<String>> = res.from_path("root.urls").and_then(|v| v.into());
+    assert_eq!(urls.unwrap().len(), 21);
+}
+
+#[test]
+fn value_wrong_extraction_entity() {
+    let finder: Finder = Config::from_yaml(CFG_YAML).unwrap().try_into().unwrap();
+    let doc = Document::from(HTML_DOC);
+    let res = finder.parse_document(&doc);
+    let url_val: Option<Value> = res.from_path("root.results.0.url");
+    let none_val: Option<Value> = url_val.and_then(|v| v.from_path("nonsense"));
+    assert!(none_val.is_none());
 }
