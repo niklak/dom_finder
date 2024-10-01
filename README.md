@@ -66,8 +66,7 @@ fn main() {
     // We know that `results` is `Value::Array`, 
     // because in the config we set `many: true` for `results`.
     // if the Value option is Array (actually Vector), we can query it by: # or a (positive) number.
-    let raw_count = results.from_path("root.results.#").unwrap();
-    let count_opt: Option<i64> = raw_count.into();
+    let count_opt: Option<i64> = results.from_path("root.results.#").and_then(|v| v.into());
     assert_eq!(count_opt.unwrap(), 21);
 
 
@@ -121,7 +120,7 @@ fn main() {
   // As we set remove_selection it matched selection will be removed from the document.
   // But the value of matched selection will be available in the result
   let res = finder.parse_document(&doc);
-  let feedback_caption: Option<String> = res.from_path("root.feedback").unwrap().into();
+  let feedback_caption: Option<String> = res.from_path("root.feedback").and_then(|v| v.into());
   assert_eq!(feedback_caption.unwrap(), "Feedback");
 
   let html = doc.html();
