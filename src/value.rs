@@ -93,7 +93,6 @@ impl<'a> FromIterator<&'a str> for Value {
     }
 }
 
-
 impl Value {
     ///Returns true if the value inner representation is empty
     pub fn is_empty(&self) -> bool {

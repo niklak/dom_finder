@@ -2,6 +2,14 @@
 
 All notable changes to the `dom_finder` crate will be documented in this file.
 
+## [0.3.0] - 2024-10-07
+
+### Changed
+- Update `dom_query`'s version to `0.4.2`.
+
+### Added
+- Now `Config.extract` also supports `inner_html` value, which allows to extract html without the element's tag (only children).
+
 ## [0.2.7] - 2024-10-01
 
 ### Changed

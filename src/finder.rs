@@ -15,6 +15,7 @@ const INDEX_FIELD: &str = "index";
 const EXTRACT_TEXT: &str = "text";
 const EXTRACT_INNER_TEXT: &str = "inner_text";
 const EXTRACT_HTML: &str = "html";
+const EXTRACT_INNER_HTML: &str = "inner_html";
 
 /// Finder is the main struct that is used to parse the html
 #[derive(Debug)]
@@ -114,7 +115,7 @@ impl<'a> Finder<'a> {
     ///
     /// # Returns
     /// `Value::Object`
-    /// 
+    ///
     /// # Examples
     /// ```
     /// use dom_finder::{Config, Finder};
@@ -318,7 +319,8 @@ fn extract_data(sel: &Selection, extract_type: &str) -> Option<StrTendril> {
     match extract_type {
         EXTRACT_TEXT => Some(sel.text()),
         EXTRACT_INNER_TEXT => Some(get_inner_text(sel)),
-        EXTRACT_HTML => Some(sel.html()),
+        EXTRACT_HTML => sel.try_html(),
+        EXTRACT_INNER_HTML => sel.try_inner_html(),
         _ => sel.attr(extract_type),
     }
 }

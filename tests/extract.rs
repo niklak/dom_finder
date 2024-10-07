@@ -162,6 +162,28 @@ fn inner_text() {
 }
 
 #[test]
+fn inner_html() {
+    let cfg_yaml = r"
+    name: root
+    base_path: html
+    children:
+      - name: title
+        base_path: h1
+        extract: inner_html
+  ";
+    let cfg = Config::from_yaml(cfg_yaml).unwrap();
+    let finder = Finder::new(&cfg).unwrap();
+    let doc = Document::from(HTML_DOC_NUT);
+
+    let res = finder.parse_document(&doc);
+    let title: Option<String> = res.from_path("root.title").and_then(|v| v.into());
+    assert_eq!(
+        title.unwrap(),
+        "<span>A Brief List of </span>Fruit Nutrition Facts"
+    );
+}
+
+#[test]
 fn extract_vec_string() {
     let cfg_yaml: &str = r"
   name: root
