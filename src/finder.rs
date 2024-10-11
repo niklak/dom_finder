@@ -156,8 +156,10 @@ impl<'a> Finder<'a> {
             root.clone()
         } else if self.parent {
             root.select_matcher(self.get_matcher()).parent()
-        } else {
+        } else if self.many {
             root.select_matcher(self.get_matcher())
+        } else {
+            root.select_single_matcher(self.get_matcher())
         };
 
         if !sel.exists() {

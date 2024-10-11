@@ -2,6 +2,12 @@
 
 All notable changes to the `dom_finder` crate will be documented in this file.
 
+
+## [Unreleased]
+
+### Changed
+- Update `dom_query`'s version to `0.5.0`.
+
 ## [0.3.0] - 2024-10-07
 
 ### Changed
