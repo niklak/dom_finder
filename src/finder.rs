@@ -151,6 +151,13 @@ impl<'a> Finder<'a> {
         Value::Object(m)
     }
 
+    /// Parses the given Selection and returns the result as a `Value`
+    /// # Arguments
+    /// * `root` - the root Selection to parse
+    /// # Returns
+    /// `Value` representing the parsed result
+    ///
+    /// This method handles different scenarios.
     pub fn parse_value(&self, root: &Selection) -> Value {
         let sel: Selection = if self.inherit {
             root.clone()
