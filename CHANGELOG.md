@@ -3,7 +3,10 @@
 All notable changes to the `dom_finder` crate will be documented in this file.
 
 
-## [Unreleased]
+## [0.3.1]
+
+### Added
+- Start using `Selection::select_single_matcher` if there is not corresponding `many` option.
 
 ### Changed
 - Update `dom_query`'s version to `0.5.0`.
