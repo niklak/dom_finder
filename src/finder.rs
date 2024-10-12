@@ -316,6 +316,7 @@ impl<'a> TryFrom<Config> for Finder<'a> {
 /// - text - extracts the text of the selection
 /// - inner_text - extracts the text of the selection without the text of the children
 /// - html - extracts the html of the selection
+/// - inner_html - extracts the inner html of the selection without it's root node.
 #[inline(always)]
 fn extract_data(sel: &Selection, extract_type: &str) -> Option<StrTendril> {
     match extract_type {

@@ -29,7 +29,7 @@ pub struct Config {
     /// is a separator for joining the result values. Works only when `many` is set to `true` and there is no descendant config.
     #[serde(default)]
     pub join_sep: String,
-    /// is a flag that indicates whether the result is an array or not.
+    /// is a flag that indicates whether the result is expecting to be an array or not.
     #[serde(default)]
     pub many: bool,
     ///  adds a index field to the result if it is an array of objects.
