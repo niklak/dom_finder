@@ -2,6 +2,11 @@
 
 All notable changes to the `dom_finder` crate will be documented in this file.
 
+## [0.3.2] - 2024-10-24
+
+### Changed
+- Update `dom_query`'s version to `0.6.0`.
+- Minor code changed due to `dom_query::Selection` doesn't require `&mut` anymore.
 
 ## [0.3.1]
 

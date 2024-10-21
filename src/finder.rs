@@ -201,8 +201,7 @@ impl<'a> Finder<'a> {
         };
 
         if self.remove_selection {
-            let mut rem_sel = sel;
-            rem_sel.remove();
+            sel.remove();
         }
         v
     }
