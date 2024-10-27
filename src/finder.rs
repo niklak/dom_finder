@@ -14,6 +14,7 @@ const INDEX_FIELD: &str = "index";
 
 const EXTRACT_TEXT: &str = "text";
 const EXTRACT_INNER_TEXT: &str = "inner_text";
+const EXTRACT_IMMEDIATE_TEXT: &str = "immediate_text";
 const EXTRACT_HTML: &str = "html";
 const EXTRACT_INNER_HTML: &str = "inner_html";
 
@@ -327,26 +328,13 @@ impl<'a> TryFrom<Config> for Finder<'a> {
 fn extract_data(sel: &Selection, extract_type: &str) -> Option<StrTendril> {
     match extract_type {
         EXTRACT_TEXT => Some(sel.text()),
-        EXTRACT_INNER_TEXT => Some(get_inner_text(sel)),
+        EXTRACT_INNER_TEXT | EXTRACT_IMMEDIATE_TEXT => Some(sel.immediate_text()),
         EXTRACT_HTML => sel.try_html(),
         EXTRACT_INNER_HTML => sel.try_inner_html(),
         _ => sel.attr(extract_type),
     }
 }
 
-/// Returns the inner text of the selection without the text of the children
-#[inline(always)]
-fn get_inner_text(sel: &Selection) -> StrTendril {
-    let nodes = sel.nodes();
-
-    if nodes.is_empty() {
-        return StrTendril::new();
-    }
-
-    let base_sel = Selection::from(nodes[0].clone());
-    base_sel.children().remove();
-    base_sel.text()
-}
 #[cfg(test)]
 mod tests {
     use super::*;

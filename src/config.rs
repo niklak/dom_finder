@@ -20,7 +20,7 @@ pub struct Config {
     /// is a selector's path to the element to handle. May be omitted if the `inherit` option is set to `true`.
     #[serde(default)]
     pub base_path: String,
-    /// represents what finder needs to extract. Accepted values are `text`, `inner_text`, `html`, `inner_html` or an html-attribute name.
+    /// represents what finder needs to extract. Accepted values are `text`, `inner_text`, `html`, `inner_html`, `immediate_text` or an html-attribute name.
     #[serde(default)]
     pub extract: String,
     /// is a type of the result value. Accepted values are `bool`, `int`, `float` or `string` (default, and should be omitted).

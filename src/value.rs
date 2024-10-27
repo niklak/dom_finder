@@ -2,9 +2,7 @@ use std::convert::From;
 use std::iter::FromIterator;
 
 use hashbrown::HashMap;
-use rustc_hash::FxHasher;
 use serde::{Deserialize, Serialize};
-use std::hash::BuildHasherDefault;
 
 ///Value is a enum that can be used to store any basic type of data
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -19,7 +17,7 @@ pub enum Value {
     Null,
 }
 
-pub type InnerMap = HashMap<String, Value, BuildHasherDefault<FxHasher>>;
+pub type InnerMap = HashMap<String, Value>;
 
 impl From<i64> for Value {
     fn from(item: i64) -> Self {
