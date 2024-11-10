@@ -150,6 +150,7 @@ fn inner_text() {
       - name: title
         base_path: h1
         extract: inner_text
+        pipeline: [ [normalize_spaces] ]
   ";
     let cfg = Config::from_yaml(cfg_yaml).unwrap();
     let finder = Finder::new(&cfg).unwrap();
@@ -157,6 +158,8 @@ fn inner_text() {
 
     let res = finder.parse_document(&doc);
     let title: Option<String> = res.from_path("root.title").and_then(|v| v.into());
+    // when taking html or text from an element it will almost always contains spaces, tabs or new-lines
+    // because of markup, in this example the title string was normalized with pipeline `normalize_spaces`
     assert_eq!(title.unwrap(), "Fruit Nutrition Facts");
     // while `extract: text` will capture `A Brief List of Fruit Nutrition Facts`
 }
@@ -170,6 +173,7 @@ fn inner_html() {
       - name: title
         base_path: h1
         extract: inner_html
+        pipeline: [ [normalize_spaces] ]
   ";
     let cfg = Config::from_yaml(cfg_yaml).unwrap();
     let finder = Finder::new(&cfg).unwrap();
@@ -177,9 +181,11 @@ fn inner_html() {
 
     let res = finder.parse_document(&doc);
     let title: Option<String> = res.from_path("root.title").and_then(|v| v.into());
+    // when taking html or text from an element it will almost always contains spaces, tabs or new-lines
+    // because of markup, in this example the title html string was normalized with pipeline `normalize_spaces`
     assert_eq!(
         title.unwrap(),
-        "<span>A Brief List of </span>Fruit Nutrition Facts"
+        "<span>A Brief List of </span> Fruit Nutrition Facts"
     );
 }
 
