@@ -2,6 +2,14 @@
 
 All notable changes to the `dom_finder` crate will be documented in this file.
 
+## [0.4.1] - 2024-11-11
+
+### Added
+- Introduced `Proc::NormalizeSpaces` a `Pipeline` procedure that normalizes the spaces in the given string.
+
+### Changed
+- Update `dom_query`'s version to `0.9.0`.
+
 ## [0.4.0] - 2024-10-27
 
 ### Changed

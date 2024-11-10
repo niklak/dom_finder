@@ -14,6 +14,7 @@ const REPLACE_PROC: &str = "replace";
 const EXTRACT_JSON: &str = "extract_json";
 const TRIM_SPACE: &str = "trim_space";
 const TRIM: &str = "trim";
+const NORMALIZE_SPACES: &str = "normalize_spaces";
 const HTML_UNESCAPE: &str = "html_unescape";
 const POLICY_HIGHLIGHT: &str = "policy_highlight";
 const POLICY_TABLE: &str = "policy_table";
@@ -84,6 +85,8 @@ pub enum Proc<'a> {
     TrimSpace,
     /// requires one argument - it trims characters from the (start and end of) string with the cut set.
     Trim(Vec<char>),
+    /// requires no arguments. It normalizes spaces in the string. Includes tabulations and new lines.
+    NormalizeSpaces,
     /// unescape html entities, requires no arguments.
     HtmlUnescape,
     /// removes all html tags from the result except `<b>`, `<em>`, and `<i>`,  requires no arguments.
@@ -136,7 +139,8 @@ impl<'a> Proc<'a> {
                 validate_args_len(proc_name, args.len(), 1)?;
                 let cut_set: Vec<char> = args[0].chars().collect();
                 Proc::Trim(cut_set)
-            }
+            },
+            NORMALIZE_SPACES => Proc::NormalizeSpaces,
             HTML_UNESCAPE => Proc::HtmlUnescape,
             POLICY_HIGHLIGHT => Proc::PolicyHighlight,
             POLICY_TABLE => Proc::PolicyTable,
@@ -168,6 +172,7 @@ impl<'a> Proc<'a> {
             Proc::ExtractJson(path) => gjson::get(value, path).to_string(),
             Proc::TrimSpace => value.trim().to_string(),
             Proc::Trim(pat) => value.trim_matches(pat.as_slice()).to_string(),
+            Proc::NormalizeSpaces => normalize_spaces(value),
             Proc::HtmlUnescape => html_escape::decode_html_entities(value).to_string(),
             Proc::PolicyHighlight => sanitize_policy::HIGHLIGHT_POLICY.clean(value),
             Proc::PolicyTable => sanitize_policy::TABLE_POLICY.clean(value),
@@ -197,6 +202,10 @@ fn re_extract_matches(re: &Regex, haystack: &str) -> String {
             .collect(),
         None => "".to_string(),
     }
+}
+
+fn normalize_spaces(text: &str) -> String {
+    text.split_whitespace().collect::<Vec<&str>>().join(" ")
 }
 
 #[cfg(test)]
@@ -244,5 +253,11 @@ mod tests {
         let proc = Proc::Replace(Cow::from("%20"), Cow::from("+"));
         let res = proc.handle("search/?q=mob%20100");
         assert_eq!(res, "search/?q=mob+100");
+    }
+    #[test]
+    fn normalize_spaces() {
+        let proc = Proc::NormalizeSpaces;
+        let res = proc.handle("<div>\n    Some\t</span>green</span>  text\n</div>\n");
+        assert_eq!(res, "<div> Some </span>green</span> text </div>");
     }
 }
