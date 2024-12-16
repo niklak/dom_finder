@@ -2,7 +2,6 @@ use dom_finder::{Config, Finder, Value};
 use std::option::Option;
 
 ///A test example of how to extract a struct from a Value
-
 trait FromValue: Sized {
     fn from_value(value: &Value) -> Option<Self>;
 }
