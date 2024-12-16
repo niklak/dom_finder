@@ -2,6 +2,13 @@
 
 All notable changes to the `dom_finder` crate will be documented in this file.
 
+## [0.4.2] - 2024-12-16
+
+### Changed
+- Update dependencies.
+- Minor code changes (`clippy`).
+
+
 ## [0.4.1] - 2024-11-11
 
 ### Added
@@ -14,7 +21,7 @@ All notable changes to the `dom_finder` crate will be documented in this file.
 
 ### Changed
 - Updated `dom_query`'s version to `0.7.0`. So now `dom_finder` is supports every selector that `dom_query` supports.
-- Switched from using `rustc-hash` to `hashbrown`'s default-hasher (foldhash).
+- Switched from using `rustc-hash` to `hashbrown`'s default-hasher (`foldhash`).
 
 ### Added
 - Added extraction of element's `inner_text`, which is done with `dom_query`. `inner_text` is also an alias of `immediate_text`.

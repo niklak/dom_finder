@@ -311,7 +311,7 @@ fn cast_value(s: String, cast: CastType) -> Value {
     }
 }
 
-impl<'a> TryFrom<Config> for Finder<'a> {
+impl TryFrom<Config> for Finder<'_> {
     type Error = ParseError;
     fn try_from(config: Config) -> Result<Self, Self::Error> {
         Finder::new(&config)

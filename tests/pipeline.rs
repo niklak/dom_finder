@@ -106,7 +106,6 @@ fn pipeline_extract_first_item() {
     );
     assert_eq!(got, expected);
 
-
     let title: Option<String> = results.from_path("root.title").and_then(|s| s.into());
     assert_eq!(title.unwrap(), "A Brief List of Fruit Nutrition Facts");
 }

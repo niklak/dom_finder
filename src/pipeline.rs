@@ -102,7 +102,7 @@ pub enum Proc<'a> {
     PolicyCommon,
 }
 
-impl<'a> Proc<'a> {
+impl Proc<'_> {
     /// Creates a new `Proc` instance based on the provided `proc_args`.
     ///
     /// # Arguments
@@ -114,8 +114,7 @@ impl<'a> Proc<'a> {
     /// Returns a new `Result<Option<Proc>, ParseError>` instance. Because:
     /// * regex can fail to compile
     /// * user can provide an invalid procedure
-    /// * user can provide an invalid number of arguments for a procedure
-
+    /// * user can provide an invalid number of arguments for a procedures
     fn new<'b>(proc_name: &'b str, args: &'b [String]) -> Result<Self, PipelineError> {
         let proc_opt = match proc_name {
             REGEX_PROC => {
@@ -139,7 +138,7 @@ impl<'a> Proc<'a> {
                 validate_args_len(proc_name, args.len(), 1)?;
                 let cut_set: Vec<char> = args[0].chars().collect();
                 Proc::Trim(cut_set)
-            },
+            }
             NORMALIZE_SPACES => Proc::NormalizeSpaces,
             HTML_UNESCAPE => Proc::HtmlUnescape,
             POLICY_HIGHLIGHT => Proc::PolicyHighlight,
