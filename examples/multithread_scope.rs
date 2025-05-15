@@ -19,10 +19,12 @@ children:
       - name: snippet
         base_path: a.result__snippet
         extract: html
-        pipeline: [ [ policy_highlight ], [ trim_space ] ]
+        pipeline: [ [ trim_space ] ]
 ";
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    use std::time::Instant;
+    let now = Instant::now();
     // There is a benefit to reuse the same `Finder` instance, because it keeps all matchers compiled and ready to use.
     // Also pipeline functions ready to use.
     // And of course the benefit is even bigger, when we use `Finder` in multithreaded environment.
@@ -65,5 +67,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             });
         }
     });
+
+    let elapsed = now.elapsed();
+    println!("Elapsed: {:.2?}", elapsed);
     Ok(())
 }
