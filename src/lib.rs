@@ -2,7 +2,7 @@ pub mod config;
 pub mod errors;
 pub mod finder;
 pub mod pipeline;
-pub mod sanitize_policy;
+pub mod sanitize_regex;
 pub mod value;
 mod value_from;
 

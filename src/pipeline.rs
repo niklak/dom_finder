@@ -3,7 +3,7 @@ use regex::Regex;
 use crate::errors::PipelineError;
 
 use super::errors::ParseError;
-use super::sanitize_policy;
+use super::sanitize_regex;
 
 // Constants representing the names of different pipeline processing procedures
 const REGEX_PROC: &str = "regex";
@@ -171,10 +171,10 @@ impl Proc {
             Proc::Trim(pat) => value.trim_matches(pat.as_slice()).to_string(),
             Proc::NormalizeSpaces => normalize_spaces(value),
             Proc::HtmlUnescape => html_escape::decode_html_entities(value).to_string(),
-            Proc::PolicyHighlight => sanitize_policy::HIGHLIGHT_POLICY.clean(value),
-            Proc::PolicyTable => sanitize_policy::TABLE_POLICY.clean(value),
-            Proc::PolicyList => sanitize_policy::LIST_POLICY.clean(value),
-            Proc::PolicyCommon => sanitize_policy::COMMON_POLICY.clean(value),
+            Proc::PolicyHighlight => sanitize_regex::HIGHLIGHT_POLICY.clean(value),
+            Proc::PolicyTable => sanitize_regex::TABLE_POLICY.clean(value),
+            Proc::PolicyList => sanitize_regex::LIST_POLICY.clean(value),
+            Proc::PolicyCommon => sanitize_regex::COMMON_POLICY.clean(value),
         }
     }
 }
