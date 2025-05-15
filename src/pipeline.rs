@@ -1,5 +1,3 @@
-use std::borrow::Cow;
-
 use regex::Regex;
 
 use crate::errors::PipelineError;
@@ -23,11 +21,11 @@ const POLICY_COMMON: &str = "policy_common";
 
 /// Represents a pipeline of processing procedures.
 #[derive(Debug)]
-pub struct Pipeline<'a> {
-    procs: Vec<Proc<'a>>,
+pub struct Pipeline {
+    procs: Vec<Proc>,
 }
 
-impl<'a> Pipeline<'a> {
+impl Pipeline {
     /// Creates a new `Pipeline` instance based on the provided raw pipelines.
     ///
     /// # Arguments
@@ -37,7 +35,7 @@ impl<'a> Pipeline<'a> {
     /// # Returns
     ///
     /// Returns a new `Result<Pipeline, ParseError>` instance. Because regex can fail to compile and user can provide an invalid procedure.
-    pub fn new<'b>(raw_pipelines: &'b Vec<Vec<String>>) -> Result<Pipeline<'a>, ParseError> {
+    pub fn new(raw_pipelines: &Vec<Vec<String>>) -> Result<Pipeline, ParseError> {
         let mut procs = vec![];
         for proc_args in raw_pipelines {
             if let Some((proc_name, args)) = proc_args.split_first() {
@@ -68,7 +66,7 @@ impl<'a> Pipeline<'a> {
 
 /// Represents a procedure in the pipeline.
 #[derive(Debug)]
-pub enum Proc<'a> {
+pub enum Proc {
     /// finds all captured groups from the first matching.
     /// It returns concatenated string from all captured groups.
     /// If you need a full match, please use `RegexFind` instead.
@@ -78,9 +76,9 @@ pub enum Proc<'a> {
     /// `Regex.find` is applied It requires one argument - the `Regex`.
     RegexFind(Regex),
     /// requires two arguments - the old and the new string.
-    Replace(Cow<'a, str>, Cow<'a, str>),
+    Replace(Box<str>, Box<str>),
     /// requires one argument - the path to the json value, if the string represents a json.
-    ExtractJson(Cow<'a, str>),
+    ExtractJson(Box<str>),
     /// requires no arguments. It trims spaces at the start and the end of the string.
     TrimSpace,
     /// requires one argument - it trims characters from the (start and end of) string with the cut set.
@@ -102,7 +100,7 @@ pub enum Proc<'a> {
     PolicyCommon,
 }
 
-impl Proc<'_> {
+impl Proc {
     /// Creates a new `Proc` instance based on the provided `proc_args`.
     ///
     /// # Arguments
@@ -127,11 +125,11 @@ impl Proc<'_> {
             }
             EXTRACT_JSON => {
                 validate_args_len(proc_name, args.len(), 1)?;
-                Proc::ExtractJson(Cow::from(args[0].clone()))
+                Proc::ExtractJson(args[0].clone().into())
             }
             REPLACE_PROC => {
                 validate_args_len(proc_name, args.len(), 2)?;
-                Proc::Replace(Cow::from(args[0].clone()), Cow::from(args[1].clone()))
+                Proc::Replace(args[0].clone().into(), args[1].clone().into())
             }
             TRIM_SPACE => Proc::TrimSpace,
             TRIM => {
@@ -236,7 +234,7 @@ mod tests {
 
     #[test]
     fn extract_json() {
-        let proc = Proc::ExtractJson(Cow::from("a.b.c"));
+        let proc = Proc::ExtractJson("a.b.c".into());
         let res = proc.handle(r#"{"a":{"b":{"c":"d"}}}"#);
         assert_eq!(res, "d");
     }
@@ -249,7 +247,7 @@ mod tests {
     }
     #[test]
     fn replace() {
-        let proc = Proc::Replace(Cow::from("%20"), Cow::from("+"));
+        let proc = Proc::Replace("%20".into(), "+".into());
         let res = proc.handle("search/?q=mob%20100");
         assert_eq!(res, "search/?q=mob+100");
     }
