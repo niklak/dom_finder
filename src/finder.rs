@@ -1,5 +1,3 @@
-use std::borrow::Cow;
-
 use dom_query::{Document, Matcher, Selection};
 use tendril::StrTendril;
 
@@ -20,11 +18,11 @@ const EXTRACT_INNER_HTML: &str = "inner_html";
 
 /// Finder is the main struct that is used to parse the html
 #[derive(Debug)]
-pub struct Finder<'a> {
-    name: Cow<'a, str>,
-    extract: Cow<'a, str>,
+pub struct Finder {
+    name: Box<str>,
+    extract: Box<str>,
     cast: CastType,
-    join_sep: Cow<'a, str>,
+    join_sep: Box<str>,
     many: bool,
     enumerate: bool,
     inherit: bool,
@@ -32,12 +30,12 @@ pub struct Finder<'a> {
     first_occurrence: bool,
     remove_selection: bool,
     flatten: bool,
-    children: Vec<Finder<'a>>,
+    children: Vec<Finder>,
     matcher: Option<Matcher>,
-    pipeline: Option<Pipeline<'a>>,
+    pipeline: Option<Pipeline>,
 }
 
-impl<'a> Finder<'a> {
+impl Finder {
     /// Creates a new Finder instance from the given `Config's` instance
     /// it's lifetime pretty depends on `Config`'s lifetime.
     ///
@@ -57,11 +55,11 @@ impl<'a> Finder<'a> {
     /// let finder = Finder::new(&cfg);
     /// assert!(finder.is_ok());
     /// ```
-    pub fn new<'b>(config: &'b Config) -> Result<Finder<'a>, ParseError> {
+    pub fn new(config: &Config) -> Result<Finder, ParseError> {
         Finder::from_config(config, true)
     }
 
-    fn from_config<'b>(config: &'b Config, is_root: bool) -> Result<Finder<'a>, ParseError> {
+    fn from_config(config: &Config, is_root: bool) -> Result<Finder, ParseError> {
         config.validate()?;
         let base_path = config.base_path.as_str();
         let matcher = if !base_path.is_empty() {
@@ -80,10 +78,10 @@ impl<'a> Finder<'a> {
             None
         };
         let mut p = Finder {
-            name: Cow::from(config.name.clone()),
-            extract: Cow::from(config.extract.clone()),
+            name: config.name.clone().into(),
+            extract: config.extract.clone().into(),
             cast: config.cast,
-            join_sep: Cow::from(config.join_sep.clone()),
+            join_sep: config.join_sep.clone().into(),
             many: config.many,
             enumerate: config.enumerate,
             inherit: config.inherit,
@@ -311,7 +309,7 @@ fn cast_value(s: String, cast: CastType) -> Value {
     }
 }
 
-impl TryFrom<Config> for Finder<'_> {
+impl TryFrom<Config> for Finder {
     type Error = ParseError;
     fn try_from(config: Config) -> Result<Self, Self::Error> {
         Finder::new(&config)
