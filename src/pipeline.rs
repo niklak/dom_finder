@@ -257,4 +257,13 @@ mod tests {
         let res = proc.handle("<div>\n    Some\t</span>green</span>  text\n</div>\n");
         assert_eq!(res, "<div> Some </span>green</span> text </div>");
     }
+
+    #[test]
+    fn parse_replace_proc_from_args() {
+        // Replace via the factory/parse method, not the enum constructor
+        let proc = Proc::new("replace", &["%20".into(), "+".into()])
+            .expect("should build `Proc::Replace` proc");
+        let result = proc.handle("search/?q=mob%20100");
+        assert_eq!(result, "search/?q=mob+100");
+    }
 }
