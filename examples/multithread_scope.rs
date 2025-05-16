@@ -19,7 +19,10 @@ children:
       - name: snippet
         base_path: a.result__snippet
         extract: html
+        sanitize_policy: highlight
         pipeline: [ [ trim_space ] ]
+        #pipeline: [ [ policy_highlight ], [ trim_space ] ]
+
 ";
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {

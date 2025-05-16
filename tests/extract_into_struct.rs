@@ -125,8 +125,8 @@ children:
 
       - name: snippet
         base_path: a.result__snippet
-        extract: html
-        pipeline: [ [ policy_highlight ] ]
+        extract: inner_html
+        sanitize_policy: highlight
 ";
 
 const HTML_DOC: &str = include_str!("../test_data/page_0.html");
@@ -167,6 +167,8 @@ fn get_count_results() {
     let finder = Finder::new(&cfg).unwrap();
 
     let results = finder.parse(HTML_DOC);
+
+    dbg!(&results);
 
     let serp = Serp::from_value(&results).unwrap();
     assert_eq!(serp.items.len(), 21);

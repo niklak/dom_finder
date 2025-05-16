@@ -6,6 +6,8 @@ pub mod sanitize_regex;
 pub mod value;
 mod value_from;
 
+mod sanitize_policy;
+
 pub use self::config::{CastType, Config};
 pub use self::errors::*;
 pub use self::finder::Finder;
