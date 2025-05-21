@@ -211,7 +211,10 @@ impl Finder {
 
     /// Handles the result selection according to the extract type and the pipeline
     fn handle_selection(&self, node: &Node) -> Option<String> {
-        self.sanitize_policy.sanitize(node);
+
+        if matches!(self.extract.as_ref(), EXTRACT_HTML | EXTRACT_INNER_HTML) { 
+            self.sanitize_policy.sanitize(node);
+        }
         
         extract_data(node, &self.extract).map(|extracted| {
             let extracted = extracted.to_string();
@@ -329,13 +332,13 @@ impl TryFrom<Config> for Finder {
 /// - html - extracts the html of the selection
 /// - inner_html - extracts the inner html of the selection without it's root node.
 #[inline(always)]
-fn extract_data(sel: &Node, extract_type: &str) -> Option<StrTendril> {
+fn extract_data(node: &Node, extract_type: &str) -> Option<StrTendril> {
     match extract_type {
-        EXTRACT_TEXT => Some(sel.text()),
-        EXTRACT_INNER_TEXT | EXTRACT_IMMEDIATE_TEXT => Some(sel.immediate_text()),
-        EXTRACT_HTML => sel.try_html(),
-        EXTRACT_INNER_HTML => sel.try_inner_html(),
-        _ => sel.attr(extract_type),
+        EXTRACT_TEXT => Some(node.text()),
+        EXTRACT_INNER_TEXT | EXTRACT_IMMEDIATE_TEXT => Some(node.immediate_text()),
+        EXTRACT_HTML => node.try_html(),
+        EXTRACT_INNER_HTML => node.try_inner_html(),
+        _ => node.attr(extract_type),
     }
 }
 

@@ -36,7 +36,7 @@ static COMMON_P: Lazy<RestrictivePolicy> = Lazy::new(|| {
 pub(crate) fn clean(policy: &RestrictivePolicy, html: &str) -> String {
     let frag = Document::fragment(html);
     policy.sanitize_document(&frag);
-    frag.select_single("html").inner_html().to_string()
+    frag.html_root().inner_html().to_string()
 }
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone, Copy)]
