@@ -3,7 +3,6 @@ use regex::Regex;
 use crate::errors::PipelineError;
 
 use super::errors::ParseError;
-use super::sanitize_policy;
 
 // Constants representing the names of different pipeline processing procedures
 const REGEX_PROC: &str = "regex";
@@ -14,10 +13,6 @@ const TRIM_SPACE: &str = "trim_space";
 const TRIM: &str = "trim";
 const NORMALIZE_SPACES: &str = "normalize_spaces";
 const HTML_UNESCAPE: &str = "html_unescape";
-const POLICY_HIGHLIGHT: &str = "policy_highlight";
-const POLICY_TABLE: &str = "policy_table";
-const POLICY_LIST: &str = "policy_list";
-const POLICY_COMMON: &str = "policy_common";
 
 /// Represents a pipeline of processing procedures.
 #[derive(Debug)]
@@ -87,17 +82,6 @@ pub enum Proc {
     NormalizeSpaces,
     /// unescape html entities, requires no arguments.
     HtmlUnescape,
-    /// removes all html tags from the result except `<b>`, `<em>`, and `<i>`,  requires no arguments.
-    PolicyHighlight,
-    /// removes all html tags from the result except  tags from  `PolicyHighlight` and
-    /// `<table>`, `<tr>`, `<td>`, `<th>`, `<tbody>`, `<thead>`, `<caption>`, requires no arguments.
-    PolicyTable,
-    /// removes all html tags from the result except  tags from  `PolicyHighlight` and  
-    /// `<ul>`, `<ol>`, `<li>`, `<dl>`, `<dt>`, `<dd>`, requires no arguments.
-    PolicyList,
-    /// removes all html tags from the result except  tags from  `PolicyHighlight`,
-    /// `PolicyTable` and `PolicyList`, requires no arguments.
-    PolicyCommon,
 }
 
 impl Proc {
@@ -139,10 +123,6 @@ impl Proc {
             }
             NORMALIZE_SPACES => Proc::NormalizeSpaces,
             HTML_UNESCAPE => Proc::HtmlUnescape,
-            POLICY_HIGHLIGHT => Proc::PolicyHighlight,
-            POLICY_TABLE => Proc::PolicyTable,
-            POLICY_LIST => Proc::PolicyList,
-            POLICY_COMMON => Proc::PolicyCommon,
             _ => return Err(PipelineError::ProcDoesNotExist(proc_name.to_string())),
         };
         Ok(proc_opt)
@@ -171,10 +151,6 @@ impl Proc {
             Proc::Trim(pat) => value.trim_matches(pat.as_slice()).to_string(),
             Proc::NormalizeSpaces => normalize_spaces(value),
             Proc::HtmlUnescape => html_escape::decode_html_entities(value).to_string(),
-            Proc::PolicyHighlight => sanitize_policy::HIGHLIGHT_POLICY.clean(value),
-            Proc::PolicyTable => sanitize_policy::TABLE_POLICY.clean(value),
-            Proc::PolicyList => sanitize_policy::LIST_POLICY.clean(value),
-            Proc::PolicyCommon => sanitize_policy::COMMON_POLICY.clean(value),
         }
     }
 }

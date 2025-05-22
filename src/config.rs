@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::errors::ValidationError;
+use crate::{errors::ValidationError, sanitization::SanitizeOption};
 
 /// `CastType` is an enum that represents the type of the (final) result value.
 #[derive(Serialize, Deserialize, Default, Debug, Clone, Copy)]
@@ -53,11 +53,14 @@ pub struct Config {
     /// if it is `true` then finder will split `base_path` by `,` for more flexibility. Not implemented yet.
     #[serde(default)]
     pub split_path: bool,
+    /// is a one of [`SanitizeOption`] variants. If set, it will sanitize the matching node before extracting html.
+    #[serde(default)]
+    pub sanitize_policy: SanitizeOption,
     /// is a list of predefined procedures to apply to the result.
     /// Each procedure (pipeline element) is represented by a list of strings.
     /// Currently supported procedures are:
     /// `regex`, `replace`, `extract_json`, `trim_space`,
-    /// `trim`, `html_unescape`, `policy_highlight`, `policy_table`, `policy_list`, `policy_common`.
+    /// `trim`, `html_unescape`, `normalize_spaces`.
     #[serde(default)]
     pub pipeline: Vec<Vec<String>>,
     /// is a list of descendant `Config`.

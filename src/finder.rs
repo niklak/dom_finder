@@ -1,7 +1,8 @@
-use dom_query::{Document, Matcher, Selection};
+use dom_query::{Document, Matcher, Node, Selection};
 use tendril::StrTendril;
 
 use crate::errors::ParseError;
+use crate::sanitization::SanitizeOption;
 
 use super::config::{CastType, Config};
 use super::pipeline::Pipeline;
@@ -32,6 +33,7 @@ pub struct Finder {
     flatten: bool,
     children: Vec<Finder>,
     matcher: Option<Matcher>,
+    sanitize_policy: SanitizeOption,
     pipeline: Option<Pipeline>,
 }
 
@@ -91,6 +93,7 @@ impl Finder {
             flatten: config.flatten,
             children: Vec::new(),
             matcher,
+            sanitize_policy: config.sanitize_policy,
             pipeline,
         };
 
@@ -179,8 +182,9 @@ impl Finder {
             (true, false) => self.parse_children_to_map(&sel),
             (false, true) => {
                 let tmp_res: Vec<String> = sel
+                    .nodes()
                     .iter()
-                    .filter_map(|item| self.handle_selection(&item))
+                    .filter_map(|item| self.handle_selection(item))
                     .collect();
 
                 if !self.join_sep.is_empty() {
@@ -190,8 +194,8 @@ impl Finder {
                 }
             }
             _ => {
-                let item = sel.first();
-                if let Some(tmp_val) = self.handle_selection(&item) {
+                let item = sel.nodes().first().unwrap();
+                if let Some(tmp_val) = self.handle_selection(item) {
                     cast_value(tmp_val, self.cast)
                 } else {
                     Value::Null
@@ -206,8 +210,8 @@ impl Finder {
     }
 
     /// Handles the result selection according to the extract type and the pipeline
-    fn handle_selection(&self, sel: &Selection) -> Option<String> {
-        extract_data(sel, &self.extract).map(|extracted| {
+    fn handle_selection(&self, node: &Node) -> Option<String> {
+        self.extract_data(node).map(|extracted| {
             let extracted = extracted.to_string();
             if let Some(ref pipeline) = self.pipeline {
                 pipeline.handle(extracted)
@@ -283,6 +287,24 @@ impl Finder {
 
         Value::from_iter(values.into_iter().map(Value::Object))
     }
+
+    /// Extracts the data from the given selection according to the extract type
+    /// The extract type can be one of the following:
+    /// - text - extracts the text of the selection
+    /// - inner_text - extracts the text of the selection without the text of the children
+    /// - html - extracts the html of the selection
+    /// - inner_html - extracts the inner html of the selection without it's root node.
+    #[inline(always)]
+    fn extract_data(&self, node: &Node) -> Option<StrTendril> {
+        let extract_type = self.extract.as_ref();
+        match extract_type {
+            EXTRACT_TEXT => Some(node.text()),
+            EXTRACT_INNER_TEXT | EXTRACT_IMMEDIATE_TEXT => Some(node.immediate_text()),
+            EXTRACT_HTML => self.sanitize_policy.clean_html(node),
+            EXTRACT_INNER_HTML => self.sanitize_policy.clean_inner_html(node),
+            _ => node.attr(extract_type),
+        }
+    }
 }
 
 /// Casts the value to the specified type
@@ -313,23 +335,6 @@ impl TryFrom<Config> for Finder {
     type Error = ParseError;
     fn try_from(config: Config) -> Result<Self, Self::Error> {
         Finder::new(&config)
-    }
-}
-
-/// Extracts the data from the given selection according to the extract type
-/// The extract type can be one of the following:
-/// - text - extracts the text of the selection
-/// - inner_text - extracts the text of the selection without the text of the children
-/// - html - extracts the html of the selection
-/// - inner_html - extracts the inner html of the selection without it's root node.
-#[inline(always)]
-fn extract_data(sel: &Selection, extract_type: &str) -> Option<StrTendril> {
-    match extract_type {
-        EXTRACT_TEXT => Some(sel.text()),
-        EXTRACT_INNER_TEXT | EXTRACT_IMMEDIATE_TEXT => Some(sel.immediate_text()),
-        EXTRACT_HTML => sel.try_html(),
-        EXTRACT_INNER_HTML => sel.try_inner_html(),
-        _ => sel.attr(extract_type),
     }
 }
 

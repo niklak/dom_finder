@@ -39,7 +39,8 @@ children:
       - name: snippet
         base_path: a.result__snippet
         extract: html
-        pipeline: [ [ policy_highlight ] ]
+        sanitize_policy: highlight
+        pipeline: [ [ normalize_spaces ] ]
 ";
 
 const HTML_DOC: &str = include_str!("../test_data/page_0.html");

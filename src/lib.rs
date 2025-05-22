@@ -2,12 +2,14 @@ pub mod config;
 pub mod errors;
 pub mod finder;
 pub mod pipeline;
-pub mod sanitize_policy;
 pub mod value;
 mod value_from;
 
-pub use self::config::{CastType, Config};
-pub use self::errors::*;
-pub use self::finder::Finder;
-pub use self::pipeline::{Pipeline, Proc};
-pub use self::value::Value;
+mod sanitization;
+
+pub use config::{CastType, Config};
+pub use errors::*;
+pub use finder::Finder;
+pub use pipeline::{Pipeline, Proc};
+pub use sanitization::SanitizeOption;
+pub use value::Value;

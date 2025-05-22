@@ -2,6 +2,15 @@
 
 All notable changes to the `dom_finder` crate will be documented in this file.
 
+## [Unreleased]
+
+### Added
+- Added support for the `sanitize_policy` configuration option. This allows users to sanitize HTML content using a selected policy (`SanitizeOption`) before extracting it.
+
+### Changed
+- **Breaking change**: Removed support for `policy_*` in `Pipeline`.
+- Internal code improvements.
+
 ## [0.4.2] - 2024-12-16
 
 ### Changed

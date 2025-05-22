@@ -96,7 +96,6 @@ children:
     children:
       - name: link
         base_path: h2.result__title > a
-        pipeline: [ [ policy_highlight ] ]
         children:
           - name: urls
             # because of `first_occurrence: true`, we will handle the first non-empty element in the children
@@ -125,8 +124,8 @@ children:
 
       - name: snippet
         base_path: a.result__snippet
-        extract: html
-        pipeline: [ [ policy_highlight ] ]
+        extract: inner_html
+        sanitize_policy: highlight
 ";
 
 const HTML_DOC: &str = include_str!("../test_data/page_0.html");
