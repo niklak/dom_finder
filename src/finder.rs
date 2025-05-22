@@ -211,12 +211,7 @@ impl Finder {
 
     /// Handles the result selection according to the extract type and the pipeline
     fn handle_selection(&self, node: &Node) -> Option<String> {
-
-        if matches!(self.extract.as_ref(), EXTRACT_HTML | EXTRACT_INNER_HTML) { 
-            self.sanitize_policy.sanitize(node);
-        }
-        
-        extract_data(node, &self.extract).map(|extracted| {
+        self.extract_data(node).map(|extracted| {
             let extracted = extracted.to_string();
             if let Some(ref pipeline) = self.pipeline {
                 pipeline.handle(extracted)
@@ -292,6 +287,24 @@ impl Finder {
 
         Value::from_iter(values.into_iter().map(Value::Object))
     }
+
+    /// Extracts the data from the given selection according to the extract type
+    /// The extract type can be one of the following:
+    /// - text - extracts the text of the selection
+    /// - inner_text - extracts the text of the selection without the text of the children
+    /// - html - extracts the html of the selection
+    /// - inner_html - extracts the inner html of the selection without it's root node.
+    #[inline(always)]
+    fn extract_data(&self, node: &Node) -> Option<StrTendril> {
+        let extract_type = self.extract.as_ref();
+        match extract_type {
+            EXTRACT_TEXT => Some(node.text()),
+            EXTRACT_INNER_TEXT | EXTRACT_IMMEDIATE_TEXT => Some(node.immediate_text()),
+            EXTRACT_HTML => self.sanitize_policy.clean_html(node),
+            EXTRACT_INNER_HTML => self.sanitize_policy.clean_inner_html(node),
+            _ => node.attr(extract_type),
+        }
+    }
 }
 
 /// Casts the value to the specified type
@@ -322,23 +335,6 @@ impl TryFrom<Config> for Finder {
     type Error = ParseError;
     fn try_from(config: Config) -> Result<Self, Self::Error> {
         Finder::new(&config)
-    }
-}
-
-/// Extracts the data from the given selection according to the extract type
-/// The extract type can be one of the following:
-/// - text - extracts the text of the selection
-/// - inner_text - extracts the text of the selection without the text of the children
-/// - html - extracts the html of the selection
-/// - inner_html - extracts the inner html of the selection without it's root node.
-#[inline(always)]
-fn extract_data(node: &Node, extract_type: &str) -> Option<StrTendril> {
-    match extract_type {
-        EXTRACT_TEXT => Some(node.text()),
-        EXTRACT_INNER_TEXT | EXTRACT_IMMEDIATE_TEXT => Some(node.immediate_text()),
-        EXTRACT_HTML => node.try_html(),
-        EXTRACT_INNER_HTML => node.try_inner_html(),
-        _ => node.attr(extract_type),
     }
 }
 

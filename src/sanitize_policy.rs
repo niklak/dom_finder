@@ -1,7 +1,8 @@
-use dom_query::{Document, Node};
+use dom_query::Node;
 use dom_sanitizer::{preset, RestrictivePolicy};
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
+use tendril::StrTendril;
 
 static HIGHLIGHT_P: Lazy<RestrictivePolicy> = Lazy::new(|| {
     RestrictivePolicy::builder()
@@ -33,11 +34,6 @@ static COMMON_P: Lazy<RestrictivePolicy> = Lazy::new(|| {
         .build()
 });
 
-pub(crate) fn clean(policy: &RestrictivePolicy, html: &str) -> String {
-    let frag = Document::fragment(html);
-    policy.sanitize_document(&frag);
-    frag.html_root().inner_html().to_string()
-}
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
@@ -60,11 +56,34 @@ impl SanitizePolicy {
             SanitizePolicy::None => (),
         }
     }
+
+    pub(crate) fn clean_html(&self, node: &Node) -> Option<StrTendril> {
+        if matches!(self, SanitizePolicy::None) {
+            return node.try_html();
+        }
+        let fragment = node.to_fragment();
+        self.sanitize(&fragment.html_root());
+        fragment
+            .html_root()
+            .try_inner_html()
+    }
+
+    pub(crate) fn clean_inner_html(&self, node: &Node) -> Option<StrTendril> {
+        if matches!(self, SanitizePolicy::None) {
+            return node.try_inner_html();
+        }
+        let fragment = node.to_fragment();
+        let Some(frag_node) = fragment.html_root().first_element_child() else {
+            return None;
+        };
+        self.sanitize(&frag_node);
+        frag_node.try_inner_html()
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::sanitize_policy::{HIGHLIGHT_P, LIST_P, TABLE_P};
+    use dom_query::Document;
 
     #[test]
     fn sanitize_with_highlight_policy() {
@@ -73,7 +92,10 @@ mod tests {
         <div>Etiam id sapien quis ex laoreet efficitur.</div>
         <div>Nam <i>dictum</i> ut massa at malesuada.</div>
         <div>Ut nec purus feugiat, <span><em>fringilla nunc ornare, luctus ex</em></span>.</div>"#;
-        let sanitized = super::clean(&HIGHLIGHT_P, html);
+
+        let doc = Document::fragment(html);
+        let p = super::SanitizePolicy::Highlight;
+        let sanitized = p.clean_html(&doc.html_root()).unwrap().to_string();
         let expected = "
         Integer efficitur orci <b>quam</b>, in porttitor ipsum tempor et.
         Etiam id sapien quis ex laoreet efficitur.
@@ -100,7 +122,10 @@ mod tests {
             </tbody>
         </table>
         "#;
-        let sanitized = super::clean(&TABLE_P, html);
+        
+        let doc = Document::fragment(html);
+        let p = super::SanitizePolicy::Table;
+        let sanitized = p.clean_html(&doc.html_root()).unwrap().to_string();
         let expected = "
         <table>
             <thead>
@@ -135,7 +160,9 @@ mod tests {
             <dd>Details 1</dd>
         </dl>
         "#;
-        let sanitized = super::clean(&LIST_P, html);
+        let doc = Document::fragment(html);
+        let p = super::SanitizePolicy::List;
+        let sanitized = p.clean_html(&doc.html_root()).unwrap().to_string();
         let expected = "
         <ul>
             <li><b>Item 1</b></li>
