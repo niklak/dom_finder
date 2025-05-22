@@ -34,7 +34,6 @@ static COMMON_P: Lazy<RestrictivePolicy> = Lazy::new(|| {
         .build()
 });
 
-
 /// Defines a set of predefined sanitization policies for HTML content.
 ///
 /// Each policy allows only a specific subset of safe HTML elements to be retained, removing all others.
@@ -78,9 +77,7 @@ impl SanitizeOption {
         }
         let fragment = node.to_fragment();
         self.sanitize(&fragment.html_root());
-        fragment
-            .html_root()
-            .try_inner_html()
+        fragment.html_root().try_inner_html()
     }
 
     pub(crate) fn clean_inner_html(&self, node: &Node) -> Option<StrTendril> {
@@ -135,7 +132,7 @@ mod tests {
             </tbody>
         </table>
         "#;
-        
+
         let doc = Document::fragment(html);
         let p = super::SanitizeOption::Table;
         let sanitized = p.clean_html(&doc.html_root()).unwrap().to_string();
@@ -189,6 +186,51 @@ mod tests {
             <dt>Term 1</dt>
             <dd>Details 1</dd>
         </dl>
+        ";
+        assert_eq!(sanitized, expected);
+    }
+
+    #[test]
+    fn sanitize_with_common_policy() {
+        let html = r#"
+        <table>
+            <thead>
+                <tr>
+                    <th><h4><span style="color: green">Header 1</span></h4></th>
+                    <th>Header 2</th>
+                    <th><b>Header 3</b></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><b><i>Cell 1</i></b></td>
+                    <td><em>Cell 2</em></td>
+                    <td><ul><li>Item 1</li><li>Item 2</li></ul></td>
+                </tr>
+            </tbody>
+        </table>
+        "#;
+
+        let doc = Document::fragment(html);
+        let p = super::SanitizeOption::Common;
+        let sanitized = p.clean_html(&doc.html_root()).unwrap().to_string();
+        let expected = "
+        <table>
+            <thead>
+                <tr>
+                    <th>Header 1</th>
+                    <th>Header 2</th>
+                    <th><b>Header 3</b></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><b><i>Cell 1</i></b></td>
+                    <td><em>Cell 2</em></td>
+                    <td><ul><li>Item 1</li><li>Item 2</li></ul></td>
+                </tr>
+            </tbody>
+        </table>
         ";
         assert_eq!(sanitized, expected);
     }

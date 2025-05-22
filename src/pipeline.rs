@@ -14,7 +14,6 @@ const TRIM: &str = "trim";
 const NORMALIZE_SPACES: &str = "normalize_spaces";
 const HTML_UNESCAPE: &str = "html_unescape";
 
-
 /// Represents a pipeline of processing procedures.
 #[derive(Debug)]
 pub struct Pipeline {

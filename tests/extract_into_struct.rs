@@ -167,8 +167,6 @@ fn get_count_results() {
 
     let results = finder.parse(HTML_DOC);
 
-    dbg!(&results);
-
     let serp = Serp::from_value(&results).unwrap();
     assert_eq!(serp.items.len(), 21);
 }
