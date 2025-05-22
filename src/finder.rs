@@ -184,7 +184,7 @@ impl Finder {
                 let tmp_res: Vec<String> = sel
                     .nodes()
                     .iter()
-                    .filter_map(|item| self.handle_selection(&item))
+                    .filter_map(|item| self.handle_selection(item))
                     .collect();
 
                 if !self.join_sep.is_empty() {
@@ -195,7 +195,7 @@ impl Finder {
             }
             _ => {
                 let item = sel.nodes().first().unwrap();
-                if let Some(tmp_val) = self.handle_selection(&item) {
+                if let Some(tmp_val) = self.handle_selection(item) {
                     cast_value(tmp_val, self.cast)
                 } else {
                     Value::Null

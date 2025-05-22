@@ -88,9 +88,7 @@ impl SanitizeOption {
             return node.try_inner_html();
         }
         let fragment = node.to_fragment();
-        let Some(frag_node) = fragment.html_root().first_element_child() else {
-            return None;
-        };
+        let frag_node = fragment.html_root().first_element_child()?;
         self.sanitize(&frag_node);
         frag_node.try_inner_html()
     }
