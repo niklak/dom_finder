@@ -21,7 +21,6 @@ children:
         extract: html
         sanitize_policy: highlight
         pipeline: [ [ trim_space ] ]
-        #pipeline: [ [ policy_highlight ], [ trim_space ] ]
 
 ";
 

@@ -96,7 +96,6 @@ children:
     children:
       - name: link
         base_path: h2.result__title > a
-        pipeline: [ [ policy_highlight ] ]
         children:
           - name: urls
             # because of `first_occurrence: true`, we will handle the first non-empty element in the children

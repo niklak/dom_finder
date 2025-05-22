@@ -18,7 +18,7 @@ children:
       - name: snippet
         base_path: a.result__snippet
         extract: html
-        pipeline: [ [ policy_highlight ] ]
+        sanitize_policy: highlight
       - name: label
         base_path: .label
         extract: text

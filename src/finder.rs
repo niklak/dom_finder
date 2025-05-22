@@ -2,7 +2,7 @@ use dom_query::{Document, Matcher, Node, Selection};
 use tendril::StrTendril;
 
 use crate::errors::ParseError;
-use crate::sanitize_policy::SanitizePolicy;
+use crate::sanitization::SanitizeOption;
 
 use super::config::{CastType, Config};
 use super::pipeline::Pipeline;
@@ -33,7 +33,7 @@ pub struct Finder {
     flatten: bool,
     children: Vec<Finder>,
     matcher: Option<Matcher>,
-    sanitize_policy: SanitizePolicy,
+    sanitize_policy: SanitizeOption,
     pipeline: Option<Pipeline>,
 }
 

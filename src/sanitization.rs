@@ -35,30 +35,45 @@ static COMMON_P: Lazy<RestrictivePolicy> = Lazy::new(|| {
 });
 
 
+/// Defines a set of predefined sanitization policies for HTML content.
+///
+/// Each policy allows only a specific subset of safe HTML elements to be retained, removing all others.
 #[derive(Serialize, Deserialize, Default, Debug, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
-pub enum SanitizePolicy {
+pub enum SanitizeOption {
+    /// Keeps only text and the following inline elements: `b`, `del`, `em`, `i`, `ins`, `mark`, `s`, `small`, `strong`, and `u`.
     Highlight,
+
+    /// Keeps text and all elements from [`SanitizePolicy::Highlight`],  
+    /// plus list-related elements: `li`, `ul`, `ol`, `dl`, `dt`, and `dd`.
     List,
+
+    /// Keeps text and all elements from [`SanitizePolicy::Highlight`],  
+    /// plus table-related elements: `table`, `caption`, `colgroup`, `col`, `th`, `thead`, `tbody`, `tr`, `td`, and `tfoot`.
     Table,
+
+    /// Keeps text and all elements from [`SanitizePolicy::Highlight`],  
+    /// [`SanitizePolicy::List`], and [`SanitizePolicy::Table`].
     Common,
+
+    /// No sanitization is applied; all content is preserved.
     #[default]
     None,
 }
 
-impl SanitizePolicy {
+impl SanitizeOption {
     pub(crate) fn sanitize(&self, node: &Node) {
         match self {
-            SanitizePolicy::Highlight => HIGHLIGHT_P.sanitize_node(node),
-            SanitizePolicy::List => LIST_P.sanitize_node(node),
-            SanitizePolicy::Table => TABLE_P.sanitize_node(node),
-            SanitizePolicy::Common => COMMON_P.sanitize_node(node),
-            SanitizePolicy::None => (),
+            SanitizeOption::Highlight => HIGHLIGHT_P.sanitize_node(node),
+            SanitizeOption::List => LIST_P.sanitize_node(node),
+            SanitizeOption::Table => TABLE_P.sanitize_node(node),
+            SanitizeOption::Common => COMMON_P.sanitize_node(node),
+            SanitizeOption::None => (),
         }
     }
 
     pub(crate) fn clean_html(&self, node: &Node) -> Option<StrTendril> {
-        if matches!(self, SanitizePolicy::None) {
+        if matches!(self, SanitizeOption::None) {
             return node.try_html();
         }
         let fragment = node.to_fragment();
@@ -69,7 +84,7 @@ impl SanitizePolicy {
     }
 
     pub(crate) fn clean_inner_html(&self, node: &Node) -> Option<StrTendril> {
-        if matches!(self, SanitizePolicy::None) {
+        if matches!(self, SanitizeOption::None) {
             return node.try_inner_html();
         }
         let fragment = node.to_fragment();
@@ -94,7 +109,7 @@ mod tests {
         <div>Ut nec purus feugiat, <span><em>fringilla nunc ornare, luctus ex</em></span>.</div>"#;
 
         let doc = Document::fragment(html);
-        let p = super::SanitizePolicy::Highlight;
+        let p = super::SanitizeOption::Highlight;
         let sanitized = p.clean_html(&doc.html_root()).unwrap().to_string();
         let expected = "
         Integer efficitur orci <b>quam</b>, in porttitor ipsum tempor et.
@@ -124,7 +139,7 @@ mod tests {
         "#;
         
         let doc = Document::fragment(html);
-        let p = super::SanitizePolicy::Table;
+        let p = super::SanitizeOption::Table;
         let sanitized = p.clean_html(&doc.html_root()).unwrap().to_string();
         let expected = "
         <table>
@@ -161,7 +176,7 @@ mod tests {
         </dl>
         "#;
         let doc = Document::fragment(html);
-        let p = super::SanitizePolicy::List;
+        let p = super::SanitizeOption::List;
         let sanitized = p.clean_html(&doc.html_root()).unwrap().to_string();
         let expected = "
         <ul>
