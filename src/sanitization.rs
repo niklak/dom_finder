@@ -96,6 +96,20 @@ mod tests {
     use dom_query::Document;
 
     #[test]
+    fn sanitize_with_none_policy() {
+        let html = r#"
+        <div><div><div>Integer <span style="color: red">efficitur</span> orci <b>quam</b></div></div>, in porttitor ipsum tempor et.</div>
+        <div>Etiam id sapien quis ex laoreet efficitur.</div>
+        <div>Nam <i>dictum</i> ut massa at malesuada.</div>
+        <div>Ut nec purus feugiat, <span><em>fringilla nunc ornare, luctus ex</em></span>.</div>"#;
+
+        let doc = Document::fragment(html);
+        let p = super::SanitizeOption::None;
+        let sanitized = p.clean_inner_html(&doc.html_root()).unwrap().to_string();
+        assert_eq!(sanitized, html);
+    }
+
+    #[test]
     fn sanitize_with_highlight_policy() {
         let html = r#"
         <div><div><div>Integer <span style="color: red">efficitur</span> orci <b>quam</b></div></div>, in porttitor ipsum tempor et.</div>
