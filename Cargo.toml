@@ -18,7 +18,7 @@ thiserror = "2.0.7"
 serde_yaml = "0.9.33"
 serde = {version = "1.0", features = ["derive"]}
 regex = "1.11.1"
-dom_query = {version = "0.19.1", features = ["hashbrown"]}
+dom_query = {version = "0.22.0", features = ["hashbrown"]}
 dom_sanitizer = {version = "0.2.1"}
 tendril = "0.4.3" 
 gjson = "0.8.1"
