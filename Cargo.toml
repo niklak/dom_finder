@@ -10,6 +10,7 @@ keywords = ["html", "css", "selectors", "scraping", "parser"]
 authors = ["Mykola Humanov <morgenpurple@gmail.com>"]
 readme = "README.md"
 rust-version = "1.75"
+exclude = [".*", "test-data", "examples", "deny.toml"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 
