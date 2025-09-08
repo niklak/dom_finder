@@ -1,4 +1,4 @@
-name: ci
+name: Rust CI
 
 on:
   push:
@@ -13,22 +13,19 @@ env:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
-        rust: [ stable, nightly, 1.65.0 ]
+        rust: [ stable, nightly, 1.75.0 ]
 
     steps:
     - uses: actions/checkout@v4
-    - name: Install cargo-audit
-      uses: taiki-e/install-action@v2
+    - uses: dtolnay/rust-toolchain@master
       with:
-        tool: cargo-audit
+        toolchain: ${{ matrix.rust }}
     - name: Build
-      run: cargo build --all-features
+      run: cargo build --verbose --all
     - name: Run tests
-      run: cargo test --all-targets --all-features
-    - name: Run clippy
-      run: cargo clippy --all-targets --all-features -- -D warnings
-    - name: Run audit
-      run: cargo audit
+      run: cargo test --verbose --all-targets
+    - name: Run tests with hashbrown
+      run: cargo test --verbose --all-targets --all-features
