@@ -10,13 +10,15 @@ All notable changes to the `dom_finder` crate will be documented in this file.
 ### Changed
 - **Breaking change**: Removed support for `policy_*` in `Pipeline`.
 - Internal code improvements.
+- Set MSRV to 1.75
+- Update dependencies.
+
 
 ## [0.4.2] - 2024-12-16
 
 ### Changed
 - Update dependencies.
 - Minor code changes (`clippy`).
-
 
 ## [0.4.1] - 2024-11-11
 
