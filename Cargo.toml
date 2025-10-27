@@ -10,16 +10,17 @@ keywords = ["html", "css", "selectors", "scraping", "parser"]
 authors = ["Mykola Humanov <morgenpurple@gmail.com>"]
 readme = "README.md"
 rust-version = "1.75"
+exclude = [".*", "test-data", "examples", "deny.toml"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 
 [dependencies]
-thiserror = "2.0.16"
+thiserror = "2.0.17"
 serde_yaml = "0.9.33"
 serde = {version = "1.0", features = ["derive"]}
 regex = "1.11"
-dom_query = {version = "0.22.0", features = ["hashbrown"]}
-dom_sanitizer = {version = "0.3"}
+dom_query = {version = "0.23.1", features = ["hashbrown"]}
+dom_sanitizer = {version = "0.4"}
 tendril = "0.4.3" 
 gjson = "0.8.1"
 html-escape = "0.2.13"
