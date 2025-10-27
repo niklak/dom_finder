@@ -1,4 +1,4 @@
-use dom_query::Node;
+use dom_query::NodeRef;
 use dom_sanitizer::{preset, RestrictivePolicy};
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
@@ -61,7 +61,7 @@ pub enum SanitizeOption {
 }
 
 impl SanitizeOption {
-    pub(crate) fn sanitize(&self, node: &Node) {
+    pub(crate) fn sanitize(&self, node: &NodeRef) {
         match self {
             SanitizeOption::Highlight => HIGHLIGHT_P.sanitize_node(node),
             SanitizeOption::List => LIST_P.sanitize_node(node),
@@ -71,7 +71,7 @@ impl SanitizeOption {
         }
     }
 
-    pub(crate) fn clean_html(&self, node: &Node) -> Option<StrTendril> {
+    pub(crate) fn clean_html(&self, node: &NodeRef) -> Option<StrTendril> {
         if matches!(self, SanitizeOption::None) {
             return node.try_html();
         }
@@ -80,7 +80,7 @@ impl SanitizeOption {
         fragment.html_root().try_inner_html()
     }
 
-    pub(crate) fn clean_inner_html(&self, node: &Node) -> Option<StrTendril> {
+    pub(crate) fn clean_inner_html(&self, node: &NodeRef) -> Option<StrTendril> {
         if matches!(self, SanitizeOption::None) {
             return node.try_inner_html();
         }
