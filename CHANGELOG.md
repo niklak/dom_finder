@@ -4,8 +4,8 @@ All notable changes to the `dom_finder` crate will be documented in this file.
 
 ## [Unreleased]
 ### Changed
-- Updated `dom_query` dependency version from 0.22.0 to 0.23.1
-- Updated `dom_sanitizer` dependency version from 0.3 to 0.4
+- Updated `dom_query` dependency version from 0.22.0 to 0.25.1
+- Updated `dom_sanitizer` dependency version from 0.3.0 to 0.5.0
 
 ## [0.5.0] - 2025-09-08
 
