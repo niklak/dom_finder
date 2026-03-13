@@ -30,7 +30,7 @@ impl Pipeline {
     /// # Returns
     ///
     /// Returns a new `Result<Pipeline, ParseError>` instance. Because regex can fail to compile and user can provide an invalid procedure.
-    pub fn new(raw_pipelines: &Vec<Vec<String>>) -> Result<Pipeline, ParseError> {
+    pub fn new(raw_pipelines: &[Vec<String>]) -> Result<Pipeline, ParseError> {
         let mut procs = vec![];
         for proc_args in raw_pipelines {
             if let Some((proc_name, args)) = proc_args.split_first() {
@@ -156,8 +156,8 @@ impl Proc {
 }
 
 fn validate_args_len(proc_name: &str, args_len: usize, len: usize) -> Result<(), PipelineError> {
-    if args_len < len {
-        return Err(PipelineError::ProcNotEnoughArguments(
+    if args_len != len {
+        return Err(PipelineError::ProcWrongNumberArguments(
             proc_name.to_string(),
             args_len,
             len,
@@ -178,7 +178,11 @@ fn re_extract_matches(re: &Regex, haystack: &str) -> String {
 }
 
 fn normalize_spaces(text: &str) -> String {
-    text.split_whitespace().collect::<Vec<&str>>().join(" ")
+    text.split_whitespace().fold(String::new(), |mut acc, s| {
+        if !acc.is_empty() { acc.push(' '); }
+        acc.push_str(s);
+        acc
+    })
 }
 
 #[cfg(test)]
