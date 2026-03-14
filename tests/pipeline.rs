@@ -16,6 +16,7 @@ children:
       - name: name
         base_path: td:nth-child(1)
         extract: text
+        pipeline: [[trim, ':' ]]
       - name: calories
         base_path: td:nth-child(2)
         extract: text

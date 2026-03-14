@@ -16,8 +16,8 @@ pub enum PipelineError {
     Regex(#[from] regex::Error),
     #[error("pipeline proc with name `{0}` does not exist")]
     ProcDoesNotExist(String),
-    #[error("pipeline proc `{0}`: not enough arguments, require {1}, got {2}")]
-    ProcNotEnoughArguments(String, usize, usize),
+    #[error("pipeline proc `{0}`: wrong number of arguments, require {1}, got {2}")]
+    ProcWrongNumberArguments(String, usize, usize),
 }
 
 /// Errors that can be encountered only during creation of the `Finder` instance.

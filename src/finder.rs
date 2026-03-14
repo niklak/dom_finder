@@ -184,7 +184,7 @@ impl Finder {
                 let tmp_res: Vec<String> = sel
                     .nodes()
                     .iter()
-                    .filter_map(|item| self.handle_selection(item))
+                    .filter_map(|item| self.handle_data(item))
                     .collect();
 
                 if !self.join_sep.is_empty() {
@@ -194,8 +194,7 @@ impl Finder {
                 }
             }
             _ => {
-                let item = sel.nodes().first().unwrap();
-                if let Some(tmp_val) = self.handle_selection(item) {
+                if let Some(tmp_val) = sel.nodes().first().and_then(|n| self.handle_data(n)) {
                     cast_value(tmp_val, self.cast)
                 } else {
                     Value::Null
@@ -209,8 +208,11 @@ impl Finder {
         v
     }
 
-    /// Handles the result selection according to the extract type and the pipeline
-    fn handle_selection(&self, node: &Node) -> Option<String> {
+    /// Handles the data from the node according to the extract type and the pipeline
+    ///
+    /// 1. First extracts the data from the node.
+    /// 2. Applies pipeline's procedures to the extracted data.
+    fn handle_data(&self, node: &Node) -> Option<String> {
         self.extract_data(node).map(|extracted| {
             let extracted = extracted.to_string();
             if let Some(ref pipeline) = self.pipeline {
@@ -221,7 +223,7 @@ impl Finder {
         })
     }
 
-    fn parse_children_to_map(&self, element: &Selection) -> Value {
+    fn children_to_map(&self, element: &Selection) -> InnerMap {
         let mut m = InnerMap::default();
         for inline in self.children.iter() {
             let v = inline.parse_value(element);
@@ -230,10 +232,8 @@ impl Finder {
             }
 
             if inline.flatten {
-                if let Value::Object(in_map) = v {
-                    for (k, val) in in_map {
-                        m.insert(k, val);
-                    }
+                if let Value::Object(obj) = v {
+                    m.extend(obj);
                 } else {
                     m.insert(inline.name.to_string(), v);
                 }
@@ -245,36 +245,17 @@ impl Finder {
                 break;
             }
         }
-        Value::Object(m)
+        m
+    }
+
+    fn parse_children_to_map(&self, element: &Selection) -> Value {
+        Value::Object(self.children_to_map(element))
     }
 
     fn parse_children_to_slice_maps(&self, selection: &Selection) -> Value {
         let mut values: Vec<InnerMap> = Vec::new();
         for item in selection.iter() {
-            let mut m: InnerMap = InnerMap::default();
-            for inline in self.children.iter() {
-                let v = inline.parse_value(&item);
-                if v.is_empty() {
-                    continue;
-                }
-
-                if inline.flatten {
-                    if let Value::Object(obj) = v {
-                        for (key, val) in obj {
-                            // push flat maps right in the result values
-                            m.insert(key, val);
-                        }
-                    } else {
-                        m.insert(inline.name.to_string(), v);
-                    }
-                } else {
-                    m.insert(inline.name.to_string(), v);
-                }
-
-                if self.first_occurrence {
-                    break;
-                }
-            }
+            let m: InnerMap = self.children_to_map(&item);
             if !m.is_empty() {
                 values.push(m);
             }
@@ -284,7 +265,6 @@ impl Finder {
                 item.insert(INDEX_FIELD.to_string(), Value::Int(i as i64));
             }
         }
-
         Value::from_iter(values.into_iter().map(Value::Object))
     }
 
@@ -297,7 +277,7 @@ impl Finder {
     #[inline(always)]
     fn extract_data(&self, node: &Node) -> Option<StrTendril> {
         let extract_type = self.extract.as_ref();
-        match extract_type {
+        match self.extract.as_ref() {
             EXTRACT_TEXT => Some(node.text()),
             EXTRACT_INNER_TEXT | EXTRACT_IMMEDIATE_TEXT => Some(node.immediate_text()),
             EXTRACT_HTML => self.sanitize_policy.clean_html(node),
@@ -318,13 +298,7 @@ impl Finder {
 /// * `cast` - `CastType`, the type to cast to
 fn cast_value(s: String, cast: CastType) -> Value {
     match cast {
-        CastType::Bool => {
-            let mut x: bool = false;
-            if !s.is_empty() {
-                x = true;
-            }
-            Value::from(x)
-        }
+        CastType::Bool => Value::from(!s.is_empty()),
         CastType::Int => Value::from(s.parse::<i64>().unwrap_or(0)),
         CastType::Float => Value::from(s.parse::<f64>().unwrap_or(0.0)),
         _ => Value::from(s),
