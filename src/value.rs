@@ -99,43 +99,41 @@ impl Value {
             Self::String(val) => val.is_empty(),
             Self::Array(val) => val.is_empty(),
             Self::Object(val) => val.is_empty(),
-            Self::Int(val) => *val == 0,
-            Self::Float(val) => *val == 0.0,
             _ => false,
         }
     }
 
     pub fn from_path(&self, path: &str) -> Option<Value> {
-        let paths = path.splitn(2, '.').collect::<Vec<&str>>();
+        let mut parts = path.splitn(2, '.');
+        let head = parts.next()?;
+        let tail = parts.next();
 
         match self {
             Self::Object(obj) => {
-                let key = paths[0];
-                obj.get(key).and_then(|v| {
-                    if paths.len() > 1 {
-                        v.from_path(paths[1])
-                    } else {
-                        Some(v.clone())
-                    }
-                })
-            }
-            Self::Array(val) => {
-                if paths.len() == 1 && paths[0] == "#" {
-                    return Some(Value::Int(val.len() as i64));
-                } else if paths[0] == "#" {
-                    let values = val.iter().filter_map(|v| v.from_path(paths[1]));
-                    return Some(Self::from_iter(values));
+                let v = obj.get(head)?;
+                match tail {
+                    Some(rest) => v.from_path(rest),
+                    None => Some(v.clone()),
                 }
+            }
 
-                let index = paths[0].parse::<usize>().ok()?;
-
-                val.get(index).and_then(|v| {
-                    if paths.len() > 1 {
-                        v.from_path(paths[1])
-                    } else {
-                        Some(v.clone())
+            Self::Array(arr) => {
+                if head == "#" {
+                    match tail {
+                        None => Some(Value::Int(arr.len() as i64)),
+                        Some(rest) => {
+                            let values = arr.iter().filter_map(|v| v.from_path(rest));
+                            Some(Value::from_iter(values))
+                        }
                     }
-                })
+                } else {
+                    let index = head.parse::<usize>().ok()?;
+                    let v = arr.get(index)?;
+                    match tail {
+                        Some(rest) => v.from_path(rest),
+                        None => Some(v.clone()),
+                    }
+                }
             }
             _ => None,
         }
