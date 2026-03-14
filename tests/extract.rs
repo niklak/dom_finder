@@ -42,7 +42,7 @@ fn get_first_string_value() {
 
     let url: String = results
         .from_path("root.results.0.url")
-        .and_then(|v| v.into())
+        .and_then(|v| v.to_string())
         .unwrap();
     assert_eq!(url, "https://ethereum.org/en/");
 }
@@ -53,7 +53,7 @@ fn get_count_results() {
 
     let results = finder.parse(HTML_DOC);
 
-    let count_opt: Option<i64> = results.from_path("root.results.#").and_then(|v| v.into());
+    let count_opt: Option<i64> = results.from_path("root.results.#").and_then(|v| v.to_i64());
     assert_eq!(count_opt.unwrap(), 21);
 }
 
@@ -66,7 +66,7 @@ fn get_flat_array_from_array_objects() {
 
     let urls_opt: Option<Vec<String>> = results
         .from_path("root.results.#.url")
-        .and_then(|v| v.into());
+        .and_then(|v| <Vec<String>>::try_from(v).ok());
     let urls = urls_opt.unwrap();
 
     let expected_urls = vec![
@@ -112,7 +112,8 @@ fn remove_selection() {
     let doc = Document::from(HTML_DOC);
 
     let res = finder.parse_document(&doc);
-    let feedback_caption: Option<String> = res.from_path("root.feedback").and_then(|v| v.into());
+    let feedback_caption: Option<String> =
+        res.from_path("root.feedback").and_then(|v| v.to_string());
     assert_eq!(feedback_caption.unwrap(), "Feedback");
     let html = doc.html();
     assert!(!html.contains("feedback-btn"));
@@ -158,7 +159,7 @@ fn inner_text() {
     let doc = Document::from(HTML_DOC_NUT);
 
     let res = finder.parse_document(&doc);
-    let title: Option<String> = res.from_path("root.title").and_then(|v| v.into());
+    let title: Option<String> = res.from_path("root.title").and_then(|v| v.to_string());
     // when taking html or text from an element it will almost always contains spaces, tabs or new-lines
     // because of markup, in this example the title string was normalized with pipeline `normalize_spaces`
     assert_eq!(title.unwrap(), "Fruit Nutrition Facts");
@@ -181,7 +182,7 @@ fn inner_html() {
     let doc = Document::from(HTML_DOC_NUT);
 
     let res = finder.parse_document(&doc);
-    let title: Option<String> = res.from_path("root.title").and_then(|v| v.into());
+    let title: Option<String> = res.from_path("root.title").and_then(|v| v.to_string());
     // when taking html or text from an element it will almost always contains spaces, tabs or new-lines
     // because of markup, in this example the title html string was normalized with pipeline `normalize_spaces`
     assert_eq!(
@@ -205,7 +206,7 @@ fn extract_vec_string() {
     let finder: Finder = Config::from_yaml(cfg_yaml).unwrap().try_into().unwrap();
     let doc = Document::from(HTML_DOC);
     let res = finder.parse_document(&doc);
-    let urls: Option<Vec<String>> = res.from_path("root.urls").and_then(|v| v.into());
+    let urls: Option<Vec<String>> = res.from_path("root.urls").and_then(|v| <Vec<String>>::try_from(v).ok());
     assert_eq!(urls.unwrap().len(), 21);
 }
 

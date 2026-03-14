@@ -17,9 +17,9 @@ impl FromValue for SerpLink {
     fn from_value(value: &Value) -> Option<Self> {
         match value {
             Value::Object(o) => {
-                let url: Option<String> = o.get("url").and_then(|v| v.into());
-                let title: Option<String> = o.get("title").and_then(|v| v.into());
-                let nofollow: Option<bool> = o.get("nofollow").and_then(|v| v.into());
+                let url: Option<String> = o.get("url").and_then(|v| v.to_string());
+                let title: Option<String> = o.get("title").and_then(|v| v.to_string());
+                let nofollow: Option<bool> = o.get("nofollow").and_then(|v| v.to_bool());
                 Some(Self {
                     url: url.unwrap_or_default(),
                     title: title.unwrap_or_default(),
@@ -50,8 +50,8 @@ impl FromValue for SerpItem {
         match value {
             Value::Object(o) => {
                 let link: Option<SerpLink> = o.get("link").and_then(SerpLink::from_value);
-                let snippet: Option<String> = o.get("snippet").and_then(|v| v.to_owned().into());
-                let index: Option<i64> = o.get("index").and_then(|v| v.to_owned().into());
+                let snippet: Option<String> = o.get("snippet").and_then(|v| v.to_string());
+                let index: Option<i64> = o.get("index").and_then(|v| v.to_i64());
                 Some(Self {
                     link: link.unwrap_or_default(),
                     snippet: snippet.unwrap_or_default(),
