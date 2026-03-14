@@ -4,15 +4,36 @@ use crate::errors::PipelineError;
 
 use super::errors::ParseError;
 
-// Constants representing the names of different pipeline processing procedures
-const REGEX_PROC: &str = "regex";
-const REGEX_FIND_PROC: &str = "regex_find";
-const REPLACE_PROC: &str = "replace";
-const EXTRACT_JSON: &str = "extract_json";
-const TRIM_SPACE: &str = "trim_space";
-const TRIM: &str = "trim";
-const NORMALIZE_SPACES: &str = "normalize_spaces";
-const HTML_UNESCAPE: &str = "html_unescape";
+// ProcName represents the names of different pipeline processing procedures
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ProcName {
+    Regex,
+    RegexFind,
+    Replace,
+    ExtractJson,
+    TrimSpace,
+    Trim,
+    NormalizeSpaces,
+    HtmlUnescape,
+}
+
+impl std::str::FromStr for ProcName {
+    type Err = PipelineError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "regex" => Ok(ProcName::Regex),
+            "regex_find" => Ok(ProcName::RegexFind),
+            "replace" => Ok(ProcName::Replace),
+            "extract_json" => Ok(ProcName::ExtractJson),
+            "trim_space" => Ok(ProcName::TrimSpace),
+            "trim" => Ok(ProcName::Trim),
+            "normalize_spaces" => Ok(ProcName::NormalizeSpaces),
+            "html_unescape" => Ok(ProcName::HtmlUnescape),
+            _ => Err(PipelineError::ProcDoesNotExist(s.to_string())),
+        }
+    }
+}
 
 /// Represents a pipeline of processing procedures.
 #[derive(Debug)]
@@ -98,32 +119,33 @@ impl Proc {
     /// * user can provide an invalid procedure
     /// * user can provide an invalid number of arguments for a procedures
     fn new<'b>(proc_name: &'b str, args: &'b [String]) -> Result<Self, PipelineError> {
-        let proc_opt = match proc_name {
-            REGEX_PROC => {
+        let proc_enum: ProcName = proc_name.parse()?;
+
+        let proc_opt = match proc_enum {
+            ProcName::Regex => {
                 validate_args_len(proc_name, args.len(), 1)?;
                 Proc::Regex(Regex::new(&args[0])?)
             }
-            REGEX_FIND_PROC => {
+            ProcName::RegexFind => {
                 validate_args_len(proc_name, args.len(), 1)?;
                 Proc::RegexFind(Regex::new(&args[0])?)
             }
-            EXTRACT_JSON => {
+            ProcName::ExtractJson => {
                 validate_args_len(proc_name, args.len(), 1)?;
                 Proc::ExtractJson(args[0].clone().into())
             }
-            REPLACE_PROC => {
+            ProcName::Replace => {
                 validate_args_len(proc_name, args.len(), 2)?;
                 Proc::Replace(args[0].clone().into(), args[1].clone().into())
             }
-            TRIM_SPACE => Proc::TrimSpace,
-            TRIM => {
+            ProcName::TrimSpace => Proc::TrimSpace,
+            ProcName::Trim => {
                 validate_args_len(proc_name, args.len(), 1)?;
                 let cut_set: Vec<char> = args[0].chars().collect();
                 Proc::Trim(cut_set)
             }
-            NORMALIZE_SPACES => Proc::NormalizeSpaces,
-            HTML_UNESCAPE => Proc::HtmlUnescape,
-            _ => return Err(PipelineError::ProcDoesNotExist(proc_name.to_string())),
+            ProcName::NormalizeSpaces => Proc::NormalizeSpaces,
+            ProcName::HtmlUnescape => Proc::HtmlUnescape,
         };
         Ok(proc_opt)
     }
@@ -179,7 +201,9 @@ fn re_extract_matches(re: &Regex, haystack: &str) -> String {
 
 fn normalize_spaces(text: &str) -> String {
     text.split_whitespace().fold(String::new(), |mut acc, s| {
-        if !acc.is_empty() { acc.push(' '); }
+        if !acc.is_empty() {
+            acc.push(' ');
+        }
         acc.push_str(s);
         acc
     })
