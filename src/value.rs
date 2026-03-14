@@ -19,39 +19,31 @@ pub enum Value {
 
 pub type InnerMap = HashMap<String, Value>;
 
-impl From<i64> for Value {
-    fn from(item: i64) -> Self {
-        Self::Int(item)
-    }
+macro_rules! impl_from_type_to_value {
+    ($inner_type:ty,$variant:ident) => {
+        impl From<$inner_type> for Value {
+            fn from(value: $inner_type) -> Self {
+                Self::$variant(value)
+            }
+        }
+
+        impl FromIterator<$inner_type> for Value {
+            fn from_iter<I: IntoIterator<Item = $inner_type>>(iter: I) -> Self {
+                Self::Array(iter.into_iter().map(Value::from).collect())
+            }
+        }
+    };
 }
 
-impl From<f64> for Value {
-    fn from(item: f64) -> Self {
-        Self::Float(item)
-    }
-}
+impl_from_type_to_value!(i64, Int);
+impl_from_type_to_value!(f64, Float);
+impl_from_type_to_value!(bool, Bool);
+impl_from_type_to_value!(InnerMap, Object);
+impl_from_type_to_value!(String, String);
 
-impl From<bool> for Value {
-    fn from(item: bool) -> Self {
-        Self::Bool(item)
-    }
-}
-
-impl From<InnerMap> for Value {
-    fn from(item: InnerMap) -> Self {
-        Self::Object(item)
-    }
-}
-
-impl<'a> From<&'a str> for Value {
-    fn from(item: &'a str) -> Self {
+impl From<&str> for Value {
+    fn from(item: &str) -> Self {
         Self::String(item.to_string())
-    }
-}
-
-impl From<String> for Value {
-    fn from(item: String) -> Self {
-        Self::String(item)
     }
 }
 
@@ -67,30 +59,11 @@ impl FromIterator<(String, Value)> for Value {
     }
 }
 
-impl FromIterator<i64> for Value {
-    fn from_iter<I: IntoIterator<Item = i64>>(iter: I) -> Self {
-        Self::Array(iter.into_iter().map(Value::from).collect())
-    }
-}
-
-impl FromIterator<f64> for Value {
-    fn from_iter<I: IntoIterator<Item = f64>>(iter: I) -> Self {
-        Self::Array(iter.into_iter().map(Value::from).collect())
-    }
-}
-
-impl FromIterator<bool> for Value {
-    fn from_iter<I: IntoIterator<Item = bool>>(iter: I) -> Self {
-        Self::Array(iter.into_iter().map(Value::from).collect())
-    }
-}
-
 impl<'a> FromIterator<&'a str> for Value {
     fn from_iter<I: IntoIterator<Item = &'a str>>(iter: I) -> Self {
-        Self::Array(iter.into_iter().map(Value::from).collect())
+        iter.into_iter().map(Value::from).collect()
     }
 }
-
 impl Value {
     ///Returns true if the value inner representation is empty
     pub fn is_empty(&self) -> bool {
