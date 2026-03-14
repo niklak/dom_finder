@@ -12,6 +12,7 @@ children:
       - name: url
         base_path: h2.result__title > a[href]
         extract: href
+        pipeline: [[html_unescape]]
       - name: title
         base_path: h2.result__title
         extract: text

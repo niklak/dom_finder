@@ -107,9 +107,11 @@ children:
              - name: url
                inherit: true
                extract: href
+               pipeline: [[html_unescape]]
              - name: url
                inherit: true
                extract: ping
+               pipeline: [[html_unescape]]
 
           - name: nofollow
             inherit: true

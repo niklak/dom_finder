@@ -144,8 +144,14 @@ impl Proc {
                 let cut_set: Vec<char> = args[0].chars().collect();
                 Proc::Trim(cut_set)
             }
-            ProcName::NormalizeSpaces => Proc::NormalizeSpaces,
-            ProcName::HtmlUnescape => Proc::HtmlUnescape,
+            ProcName::NormalizeSpaces => {
+                validate_args_len(proc_name, args.len(), 0)?;
+                Proc::NormalizeSpaces
+            }
+            ProcName::HtmlUnescape => {
+                validate_args_len(proc_name, args.len(), 0)?;
+                Proc::HtmlUnescape
+            }
         };
         Ok(proc_opt)
     }
@@ -177,12 +183,12 @@ impl Proc {
     }
 }
 
-fn validate_args_len(proc_name: &str, args_len: usize, len: usize) -> Result<(), PipelineError> {
-    if args_len != len {
+fn validate_args_len(proc_name: &str, actual: usize, expected: usize) -> Result<(), PipelineError> {
+    if actual != expected {
         return Err(PipelineError::ProcWrongNumberArguments(
             proc_name.to_string(),
-            args_len,
-            len,
+            expected,
+            actual,
         ));
     }
     Ok(())
