@@ -126,7 +126,7 @@ mod tests {
     #[test]
     fn try_from_value_to_vec_i64() {
         let source = vec![1, 2, 3];
-        let val = Value::from_iter(source.clone().into_iter());
+        let val = Value::from_iter(source.clone());
         let v: Vec<i64> = val.try_into().unwrap();
         assert_eq!(source, v);
     }
@@ -134,7 +134,7 @@ mod tests {
     #[test]
     fn try_from_value_to_vec_f64() {
         let source = vec![1.0, 2.0, 3.0];
-        let val = Value::from_iter(source.clone().into_iter());
+        let val = Value::from_iter(source.clone());
         let v: Vec<f64> = val.try_into().unwrap();
         assert_eq!(source, v);
     }
@@ -142,7 +142,7 @@ mod tests {
     #[test]
     fn try_from_value_to_vec_string() {
         let source = vec!["1", "2", "3"];
-        let val = Value::from_iter(source.clone().into_iter());
+        let val = Value::from_iter(source.clone());
 
         let v: Vec<String> = val.try_into().unwrap();
         assert_eq!(source, v);
@@ -151,7 +151,7 @@ mod tests {
     #[test]
     fn try_from_value_to_vec_bool() {
         let source = vec![true, false, false];
-        let val = Value::from_iter(source.clone().into_iter());
+        let val = Value::from_iter(source.clone());
 
         let v: Vec<bool> = val.try_into().unwrap();
         assert_eq!(source, v);
@@ -159,7 +159,7 @@ mod tests {
     #[test]
     fn try_from_value_to_vec_wrong_type() {
         let source = vec![1.0, 2.0, 3.0];
-        let val = Value::from_iter(source.clone().into_iter());
+        let val = Value::from_iter(source.clone());
         let val_ref = &val;
         let res: Result<Vec<i64>, _> = val_ref.try_into();
         let err = res.unwrap_err();
