@@ -2,7 +2,7 @@
 
 All notable changes to the `dom_finder` crate will be documented in this file.
 
-## [0.6.0] - 202
+## [0.6.0] - 2026-03-15
 
 ### Changed
 - Update dependencies:
