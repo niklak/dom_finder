@@ -30,3 +30,9 @@ pub enum ParseError {
     #[error(transparent)]
     Pipeline(#[from] PipelineError),
 }
+
+#[derive(Error, Debug)]
+#[error("got wrong value type, but expecting: {expected}")]
+pub struct ValueConversionError {
+    pub expected: &'static str,
+}

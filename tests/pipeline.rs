@@ -57,36 +57,24 @@ fn pipeline_extract_first_item() {
 
     let results = finder.parse(HTML_DOC);
 
-    let first_item = results.from_path("root.results.0").unwrap();
+    let first_item = results.get("root.results.0").unwrap();
 
-    let name: String = first_item.from_path("name").and_then(|v| v.into()).unwrap();
+    let name: String = first_item.get("name").and_then(|v| v.to_string()).unwrap();
 
-    let calories: i64 = first_item
-        .from_path("calories")
-        .and_then(|v| v.into())
-        .unwrap();
+    let calories: i64 = first_item.get("calories").and_then(|v| v.to_i64()).unwrap();
 
     let vitamin_c: String = first_item
-        .from_path("vitamin_c")
-        .and_then(|v| v.into())
+        .get("vitamin_c")
+        .and_then(|v| v.to_string())
         .unwrap();
 
-    let sugar: f64 = first_item
-        .from_path("sugar")
-        .and_then(|v| v.into())
-        .unwrap();
+    let sugar: f64 = first_item.get("sugar").and_then(|v| v.to_f64()).unwrap();
     let carbohydrates: f64 = first_item
-        .from_path("carbohydrates")
-        .and_then(|v| v.into())
+        .get("carbohydrates")
+        .and_then(|v| v.to_f64())
         .unwrap();
-    let fiber: f64 = first_item
-        .from_path("fiber")
-        .and_then(|v| v.into())
-        .unwrap();
-    let protein: f64 = first_item
-        .from_path("protein")
-        .and_then(|v| v.into())
-        .unwrap();
+    let fiber: f64 = first_item.get("fiber").and_then(|v| v.to_f64()).unwrap();
+    let protein: f64 = first_item.get("protein").and_then(|v| v.to_f64()).unwrap();
     let got = (
         name,
         calories,
@@ -107,6 +95,6 @@ fn pipeline_extract_first_item() {
     );
     assert_eq!(got, expected);
 
-    let title: Option<String> = results.from_path("root.title").and_then(|s| s.into());
+    let title: Option<String> = results.get("root.title").and_then(|s| s.to_string());
     assert_eq!(title.unwrap(), "A Brief List of Fruit Nutrition Facts");
 }
