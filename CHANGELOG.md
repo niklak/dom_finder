@@ -2,7 +2,7 @@
 
 All notable changes to the `dom_finder` crate will be documented in this file.
 
-## [Unreleased]
+## [0.6.0] - 202
 
 ### Changed
 - Update dependencies:
@@ -12,8 +12,10 @@ All notable changes to the `dom_finder` crate will be documented in this file.
 - Refactored internal methods `Finder::parse_children_to_map`, `Finder::parse_children_to_slice_maps`.
 - Refactored internal code related to pipeline procedure names.
 - Minor code refactoring.
-- *Breaking*: zeroed `Value::Int` and `Value::Float` are no longer considered empty (`Value::is_empty`).Ё
-- *Breaking*: `PipelineError::ProcNotEnoughArguments` was renamed to `PipelineError::ProcWrongNumberArguments`.
+- **Breaking**: zero-valued `Value::Int` and `Value::Float` are no longer considered empty (`Value::is_empty`).
+- **Breaking**: `PipelineError::ProcNotEnoughArguments` was renamed to `PipelineError::ProcWrongNumberArguments`.
+- **Breaking**: `Value::from_path` was replaced with `Value::get`.
+- **Breaking**: replaced `From` implementations for `Value` with `TryFrom`.
 
 ## [0.5.0] - 2025-09-08
 
