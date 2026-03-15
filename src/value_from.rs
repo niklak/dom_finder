@@ -32,7 +32,7 @@ macro_rules! impl_try_from {
             type Error = ValueConversionError;
             fn try_from(value: Value) -> Result<Self, Self::Error> {
                 if let Value::$variant(v) = value {
-                    Ok(v.clone())
+                    Ok(v)
                 } else {
                     Err(ValueConversionError {
                         expected: stringify!($variant),
