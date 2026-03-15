@@ -4,22 +4,16 @@ All notable changes to the `dom_finder` crate will be documented in this file.
 
 ## [Unreleased]
 
-### Added
-- Implemented `Value::get`, which returns a value at the given dot-separated path.
-- Implemented `Value::get_ref`, similar to `Value::get` but tries to avoid unnecessary allocations.
-- Added helper methods `as_*` and `to_*` (`as_i64`, `to_i64`, etc.) for value conversion.
-
 ### Changed
-- Updated `dom_query` dependency version from `0.22.0` to `0.25.1`.
-- Updated `dom_sanitizer` dependency version from `0.3.0` to `0.5.0`.
+- Update dependencies:
+  - `tendril`: 0.4.3 -> 0.5.0
+  - `dom_query`: 0.22.0 -> 0.26.0
+  - `dom_sanitizer`: 0.3.0 -> 0.6.0
 - Refactored internal methods `Finder::parse_children_to_map`, `Finder::parse_children_to_slice_maps`.
 - Refactored internal code related to pipeline procedure names.
 - Minor code refactoring.
-- *Breaking*: zero-valued `Value::Int` and `Value::Float` are no longer considered empty (`Value::is_empty`).
+- *Breaking*: zeroed `Value::Int` and `Value::Float` are no longer considered empty (`Value::is_empty`).Ё
 - *Breaking*: `PipelineError::ProcNotEnoughArguments` was renamed to `PipelineError::ProcWrongNumberArguments`.
-- *Breaking*: `Value::from_path` was replaced with `Value::get`.
-- *Breaking*: replaced `From` implementations for `Value` with `TryFrom`.
-
 
 ## [0.5.0] - 2025-09-08
 
