@@ -1,5 +1,5 @@
-use std::convert::From;
 use std::iter::FromIterator;
+use std::{borrow::Cow, convert::From};
 
 use hashbrown::HashMap;
 use serde::{Deserialize, Serialize};
@@ -65,7 +65,7 @@ impl<'a> FromIterator<&'a str> for Value {
     }
 }
 impl Value {
-    ///Returns true if the value inner representation is empty
+    /// Returns true if the inner representation of the value is empty.
     pub fn is_empty(&self) -> bool {
         match self {
             Self::Null => true,
@@ -76,7 +76,16 @@ impl Value {
         }
     }
 
-    pub fn from_path(&self, path: &str) -> Option<Value> {
+    /// Returns the value at the given dot-separated path.
+    /// The returned value is owned.
+    pub fn get(&self, path: &str) -> Option<Value> {
+        self.get_ref(path).map(|v| v.into_owned())
+    }
+
+    /// Returns the value at the given dot-separated path.
+    /// `#` can be used on arrays to access their length or map a path over elements.
+    /// May return a borrowed value when possible.
+    pub fn get_ref<'a>(&'a self, path: &str) -> Option<Cow<'a, Value>> {
         let mut parts = path.splitn(2, '.');
         let head = parts.next()?;
         let tail = parts.next();
@@ -85,26 +94,33 @@ impl Value {
             Self::Object(obj) => {
                 let v = obj.get(head)?;
                 match tail {
-                    Some(rest) => v.from_path(rest),
-                    None => Some(v.clone()),
+                    Some(rest) => v.get_ref(rest),
+                    None => Some(Cow::Borrowed(v)),
                 }
             }
 
             Self::Array(arr) => {
                 if head == "#" {
                     match tail {
-                        None => Some(Value::Int(arr.len() as i64)),
+                        // Creating a **new** value (length), so that's why using Cow::Owned.
+                        None => Some(Cow::Owned(Value::Int(arr.len() as i64))),
                         Some(rest) => {
-                            let values = arr.iter().filter_map(|v| v.from_path(rest));
-                            Some(Value::from_iter(values))
+                            // Here we are mapping a new Value::Array. Results may be Cow,
+                            // but array itself is a new value, so we return Cow::Owned again.
+                            let values: Vec<Value> = arr
+                                .iter()
+                                .filter_map(|v| v.get_ref(rest))
+                                .map(|c| c.into_owned())
+                                .collect();
+                            Some(Cow::Owned(Value::Array(values)))
                         }
                     }
                 } else {
                     let index = head.parse::<usize>().ok()?;
                     let v = arr.get(index)?;
                     match tail {
-                        Some(rest) => v.from_path(rest),
-                        None => Some(v.clone()),
+                        Some(rest) => v.get_ref(rest),
+                        None => Some(Cow::Borrowed(v)),
                     }
                 }
             }

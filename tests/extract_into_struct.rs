@@ -70,7 +70,7 @@ struct Serp {
 
 impl FromValue for Serp {
     fn from_value(value: &Value) -> Option<Self> {
-        if let Some(val) = value.from_path("root.results") {
+        if let Some(val) = value.get("root.results") {
             match val {
                 Value::Array(items) => {
                     let items: Vec<SerpItem> =
